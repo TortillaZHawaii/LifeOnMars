@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31911.260
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LifeOnMars", "LifeOnMars\LifeOnMars.csproj", "{C7033286-374B-4B8C-916F-AD618F2C6B04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jednosc", "Jednosc\Jednosc.csproj", "{AFA80AAD-98EA-4E8B-BF79-C83F9D39FA45}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7033286-374B-4B8C-916F-AD618F2C6B04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7033286-374B-4B8C-916F-AD618F2C6B04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7033286-374B-4B8C-916F-AD618F2C6B04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7033286-374B-4B8C-916F-AD618F2C6B04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFA80AAD-98EA-4E8B-BF79-C83F9D39FA45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFA80AAD-98EA-4E8B-BF79-C83F9D39FA45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFA80AAD-98EA-4E8B-BF79-C83F9D39FA45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFA80AAD-98EA-4E8B-BF79-C83F9D39FA45}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B45FC1CD-2B87-4783-8C18-0A1080C05859}
+	EndGlobalSection
+EndGlobal
