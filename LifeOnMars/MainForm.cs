@@ -8,7 +8,7 @@ namespace LifeOnMars
 {
     public partial class MainForm : Form
     {
-        private FlatShaderRenderer _renderer;
+        private TextureRenderer _renderer;
         private RenderScene _scene;
         private System.Windows.Forms.Timer _timer;
         private RenderObject _prop;
@@ -21,12 +21,12 @@ namespace LifeOnMars
 
             var camera = new Camera()
             {
-                Position = 1 * Vector3.UnitX,
+                Position = 200 * Vector3.UnitX,
                 Target = Vector3.Zero,
             };
             _scene = new RenderScene(camera);
 
-            _renderer = new FlatShaderRenderer(bitmap, _scene);
+            _renderer = new TextureRenderer(bitmap, _scene);
 
             _timer = new System.Windows.Forms.Timer()
             {
@@ -42,6 +42,8 @@ namespace LifeOnMars
                 Position = Vector3.Zero,
                 Forward = Vector3.UnitZ
             };
+
+            _scene.Objects.Add(_prop);
         }
 
         private void _timer_Tick(object? sender, EventArgs e)
@@ -49,18 +51,11 @@ namespace LifeOnMars
             DrawProp();
         }
 
-        private void DrawCube()
-        {
-            var cube = new Jednosc.Scene.Examples.Cube();
-
-            _renderer.Render(cube);
-
-            _mainPictureBox.Invalidate();
-        }
-
         private async void PickTeapot()
         {
+            _scene.Objects.Clear();
             _prop = await RenderObject.FromFilenameAsync(@"D:\szkola\sem5\gk\teapot.obj");
+            _scene.Objects.Add(_prop);
         }
 
         private void DrawProp()
@@ -68,7 +63,7 @@ namespace LifeOnMars
             var stopwatch = new Stopwatch();
 
             stopwatch.Start();
-            _renderer.Render(_prop);
+            _renderer.Render();
             stopwatch.Stop();
             _mainPictureBox.Invalidate();
 
