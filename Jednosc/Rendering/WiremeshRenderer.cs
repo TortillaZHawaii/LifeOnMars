@@ -1,5 +1,4 @@
 ﻿using Jednosc.Scene;
-using Jednosc.Transformations;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -53,7 +52,7 @@ public class WiremeshRenderer : IRenderer
 
         var newVertices = prop.Vertices.Select(x => Vs(Vn(Vector4.Transform(x, rotation * mvp)))).ToArray();
 
-        foreach(var triangle in prop.TriangleIndexes)
+        foreach(var triangle in prop.VertexIndexes)
         {
             var points = new PointF[3];
             points[0] = newVertices[triangle.a];

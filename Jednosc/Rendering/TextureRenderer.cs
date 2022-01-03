@@ -20,7 +20,7 @@ public class TextureRenderer : IRenderer
         float fov = 80 * MathF.PI / 180;
         float aspectRatio = _bitmap.Width / _bitmap.Height;
         float nearPlaneDistance = 1f;
-        float farPlaneDistance = 100f;
+        float farPlaneDistance = 2f;
         
         var perspective = Matrix4x4.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
         var view = _scene.Camera.ViewMatrix;
@@ -55,15 +55,33 @@ public class TextureRenderer : IRenderer
 
         var newVertices = prop.Vertices.AsParallel()
             .Select(x => VsVn(Vector4.Transform(x, mvp))).ToArray();
+        var newNormals = prop.VertexNormals.AsParallel()
+            .Select(x => Vn(Vector4.Transform(x, mvp))).ToArray();
 
-        foreach (var triangle in prop.TriangleIndexes)
+        for(int i = 0; i < prop.VertexIndexes.Length; ++i)
         {
+            var triangle = prop.VertexIndexes[i];
             var triangle3 = new Triangle3(newVertices[triangle.a], newVertices[triangle.b], newVertices[triangle.c]);
-            FloatScanLine(triangle3, zBuffer);
+            FloatScanLine(triangle3, zBuffer, prop, i, newNormals);
         }
 
+        //for (int i = 0; i < prop.VertexIndexes.Length; ++i)
+        //{
+        //    var triangle = prop.VertexIndexes[i];
+        //    var triangle3 = new Triangle3(newVertices[triangle.a], newVertices[triangle.b], newVertices[triangle.c]);
+        //    WireScanLine(triangle3);
+        //}
     }
 
+    private Vector3 Vn(Vector4 vector)
+    {
+        return new Vector3()
+        {
+            X = vector.X,
+            Y = vector.Y,
+            Z = vector.Z,
+        } / vector.W;
+    }
 
     private Vector3 VsVn(Vector4 vector)
     {
@@ -71,15 +89,24 @@ public class TextureRenderer : IRenderer
         {
             X = _bitmap.Width * (1 + vector.X / vector.W) * 0.5f,
             Y = _bitmap.Height * (1 - vector.Y / vector.W) * 0.5f,
-            Z = vector.Z / vector.W,
+            Z = (vector.Z / vector.W + 1) * 0.5f,
         };
     }
 
     private Random _rng = new Random(0);
 
 
-    private void FloatScanLine(Triangle3 t, float[,] zBuffer)
+    private void FloatScanLine(Triangle3 t, float[,] zBuffer, RenderObject prop, int triangleIndex, Vector3[] normals)
     {
+        // discard using back-face culling
+        var normal = GetNormal(t);
+        float intensity = Vector3.Dot(normal, Vector3.UnitZ);
+
+        bool isABackFace = intensity < 0;
+
+        if (isABackFace)
+            return;
+
         // from top to bottom
         var sorted = new[] { t.a, t.b, t.c }.OrderBy(v => v.Y).ToArray();
         var points = sorted.Select(v => new Point((int)v.X, (int)v.Y)).ToArray();
@@ -98,7 +125,7 @@ public class TextureRenderer : IRenderer
 
             for(int x = (int)MathF.Min(x1, x2); x < MathF.Max(x1, x2); ++x)
             {
-                FillPixel(x, y, t, zBuffer);
+                FillPixel(x, y, t, zBuffer, intensity, prop, triangleIndex, normals);
             }
 
             x1 += mTotal;
@@ -106,7 +133,20 @@ public class TextureRenderer : IRenderer
         }
     }
 
-    private void FillPixel(int x, int y, Triangle3 t, float[,] zBuffer)
+    // https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
+    private static Vector3 GetNormal(Triangle3 t)
+    {
+        Vector3 u = t.c - t.a;
+        Vector3 v = t.b - t.a;
+
+        Vector3 normal = Vector3.Cross(u, v);
+
+        return Vector3.Normalize(normal);
+    }
+
+
+    private void FillPixel(int x, int y, Triangle3 t, float[,] zBuffer, float intensity, RenderObject prop, 
+        int index, Vector3[] normals)
     {
         Vector3 bary = GetBarycentric(t, x, y);
 
@@ -116,7 +156,98 @@ public class TextureRenderer : IRenderer
         {
             zBuffer[x, y] = z;
 
+            if(prop.Texture != null)
+            {
+                Color textureColor = GetTextureColor(prop, index, bary);
+                _bitmap.SetPixel(x, y, textureColor);
+                //var normal = GetNormal(prop, index, bary, normals);
+                //Color shadersColor = Shading(Vector3.UnitX, new Vector3(x, y, z), normal);
+                //_bitmap.SetPixel(x, y, shadersColor);
+            }
+            else
+            {
+                _bitmap.SetPixel(x, y, Color.White);
+            }
         }
+    }
+
+    private static Color GetTextureColor(RenderObject prop, int index, Vector3 bary)
+    {
+        var textureIndex = prop.TextureIndexes[index];
+        var textureTriangle = RenderObject.GetTriangleFromIndexes(textureIndex, prop.TextureCoordinates);
+
+        var textureXs = new Vector3(textureTriangle.a.X, textureTriangle.b.X, textureTriangle.c.X);
+        var textureYs = new Vector3(textureTriangle.a.Y, textureTriangle.b.Y, textureTriangle.c.Y);
+
+        int textureX = (int)(Vector3.Dot(textureXs, bary) * (prop.Texture.Width - 1));
+        int textureY = (int)((1 - Vector3.Dot(textureYs, bary)) * (prop.Texture.Height - 1));
+
+        Color textureColor = prop.Texture.GetPixel(textureX, textureY);
+        return textureColor;
+    }
+
+    private static Vector3 GetNormal(RenderObject prop, int index, Vector3 bary, Vector3[] normals)
+    {
+        var normalIndex = prop.NormalIndexes[index];
+        var normalTriangle = RenderObject.GetTriangleFromIndexes(normalIndex, normals);
+
+        var xs = new Vector3(normalTriangle.a.X, normalTriangle.b.X, normalTriangle.c.X);
+        var ys = new Vector3(normalTriangle.a.Y, normalTriangle.b.Y, normalTriangle.c.Y);
+        var zs = new Vector3(normalTriangle.a.Z, normalTriangle.b.Z, normalTriangle.c.Z);
+
+        var normal = new Vector3(
+                Vector3.Dot(xs, bary),
+                Vector3.Dot(ys, bary),
+                Vector3.Dot(zs, bary)
+            );
+
+        return Vector3.Normalize(normal);
+    }
+
+    private Color Shading(Vector3 ambientColor, Vector3 position, Vector3 normal)
+    {
+        float ks = 0.0f; // specular
+        float kd = 1f; // diffuse
+        float ka = .3f; // ambient
+        int alpha = 30; // shininess
+
+        Vector3 ambient = ambientColor * ka;
+        Vector3 sum = Vector3.Zero;
+
+        Vector3 toObserver = Vector3.UnitZ;
+
+        foreach(var light in _scene.Lights)
+        {
+            Vector3 toLight = light.GetVersorFrom(position);
+            float lin = Vector3.Dot(toLight, normal);
+
+            Vector3 reflection = 2 * lin * normal - toLight;
+            float rv = Vector3.Dot(reflection, toObserver); 
+
+            Vector3 diffuse = kd * lin * light.DiffuseLight;
+            Vector3 specular = ks * MathF.Pow(rv, alpha) * light.SpecularLight;
+
+            float attenuation = light.GetAttenuation(position);
+
+            sum += attenuation * (diffuse + specular);
+        }
+
+        Vector3 colorVector = ambient + sum;
+
+        return GetColorFromVector(colorVector);
+    }
+
+    private static Vector3 GetVectorFromColor(Color color)
+    {
+        return new Vector3(color.R / 255, color.G / 255, color.B / 255);
+    }
+
+    private static Color GetColorFromVector(Vector3 vector)
+    {
+        var clamped = Vector3.Clamp(vector, Vector3.Zero, Vector3.One);
+        var in255space = clamped * 255;
+
+        return Color.FromArgb((int)in255space.X, (int)in255space.Y, (int)in255space.Z);
     }
 
     private float GetM(Point upper, Point lower)
@@ -200,7 +331,7 @@ public class TextureRenderer : IRenderer
         }
     }
 
-    private void FillNaive(Triangle3 triangle, float[,] zBuffer)
+    private void FillNaive(Triangle3 triangle, float[,] zBuffer, RenderObject prop, int index)
     {
         var (min, max) = GetBoundingBox(triangle);
 
@@ -219,14 +350,7 @@ public class TextureRenderer : IRenderer
                 if (isOutOfTriangle)
                     continue;
 
-                float z = triangle.a.Z * bary.X + triangle.b.Z * bary.Y + triangle.c.Z * bary.Z;
-
-                if (zBuffer[x, y] > z)
-                {
-                    zBuffer[x, y] = z;
-
-                    _bitmap.SetPixel(x, y, color);
-                }
+               // FillPixel(x, y, triangle, zBuffer, 0f, prop, index);
             }
         });
     }

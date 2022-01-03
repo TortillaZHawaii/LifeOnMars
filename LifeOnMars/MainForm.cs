@@ -21,7 +21,7 @@ namespace LifeOnMars
 
             var camera = new Camera()
             {
-                Position = 200 * Vector3.UnitX,
+                Position = -3 * Vector3.UnitX,
                 Target = Vector3.Zero,
             };
             _scene = new RenderScene(camera);
@@ -35,15 +35,15 @@ namespace LifeOnMars
 
             _timer.Tick += _timer_Tick;
 
-            _timer.Start();
-
-            _prop = new Jednosc.Scene.Examples.Cube()
-            {
-                Position = Vector3.Zero,
-                Forward = Vector3.UnitZ
-            };
-
+            _prop = RenderObject.FromFilename(@"C:\Users\dwyso\Downloads\african_head.obj");
+            _prop.LoadTextureFromFilename(@"C:\Users\dwyso\Downloads\african_head_diffuse.png");
             _scene.Objects.Add(_prop);
+
+            var light = new Light(Vector3.UnitX * -1f);
+
+            _scene.Lights.Add(light);
+
+            _timer.Start();
         }
 
         private void _timer_Tick(object? sender, EventArgs e)
@@ -55,6 +55,14 @@ namespace LifeOnMars
         {
             _scene.Objects.Clear();
             _prop = await RenderObject.FromFilenameAsync(@"D:\szkola\sem5\gk\teapot.obj");
+            _scene.Objects.Add(_prop);
+        }
+
+        private async void PickAfricanAsync()
+        {
+            _scene.Objects.Clear();
+            _prop = await RenderObject.FromFilenameAsync(@"C:\Users\dwyso\Downloads\african_head.obj");
+            _prop.LoadTextureFromFilename(@"C:\Users\dwyso\Downloads\african_head_diffuse.png");
             _scene.Objects.Add(_prop);
         }
 
@@ -72,8 +80,9 @@ namespace LifeOnMars
 
         private void _mainPictureBox_Click(object sender, EventArgs e)
         {
-            PickTeapot();
+            //PickTeapot();
             //DrawProp();
+            PickAfricanAsync();
         }
 
         private void PlayPauseAnimation()

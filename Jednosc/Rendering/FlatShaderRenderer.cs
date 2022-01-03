@@ -57,7 +57,7 @@ public class FlatShaderRenderer : IRenderer
         var newVertices = prop.Vertices.AsParallel()
             .Select(x => Vs(Vn(Vector4.Transform(x, scale * rotation * mvp)))).ToArray();
 
-        foreach (var triangle in prop.TriangleIndexes)
+        foreach (var triangle in prop.VertexIndexes)
         {
             //ScanLineTriangle(newVertices[triangle.a], newVertices[triangle.b], newVertices[triangle.c], Vector3.Zero, zBuffer);
             var triangle3 = new Triangle3(newVertices[triangle.a], newVertices[triangle.b], newVertices[triangle.c]);

@@ -26,9 +26,14 @@ public class RenderObject
     /// Indexes of vertices that form triangles.
     /// Indexes start at 0 and end at <see cref="Vertices"/> length - 1.
     /// </summary>
-    public TriangleIndexes[] TriangleIndexes { get; init; }
+    public TriangleIndexes[] VertexIndexes { get; init; }
+    public TriangleIndexes[] NormalIndexes { get; init; }
+
+    public TriangleIndexes[] TextureIndexes { get; init; }
 
     public Vector3[] VertexNormals { get; init; }
+
+    public Vector3[] TextureCoordinates { get; init; }
 
     /// <summary>
     /// Position of the object in the space.
@@ -47,20 +52,24 @@ public class RenderObject
 
     public Matrix4x4 ModelMatrix => Matrix4x4.CreateWorld(Position, Forward, Up);
 
+    public DirectBitmap Texture { get; set; }
+
     public RenderObject()
     {
         
     }
 
-    public static async Task<RenderObject> FromFilenameAsync(string filename)
+    private static RenderObject ProcessObjLines(string[] lines)
     {
-        string[] lines = await File.ReadAllLinesAsync(filename);
+        var triangleIndexes = new List<TriangleIndexes>();
+        var textureIndexes = new List<TriangleIndexes>();
+        var normalIndexes = new List<TriangleIndexes>();
 
         var vertices = new List<Vector4>();
-        var triangleIndexes = new List<TriangleIndexes>();
         var vertexNormals = new List<Vector3>();
+        var texturesCoords = new List<Vector3>();
 
-        foreach(var line in lines)
+        foreach (var line in lines)
         {
             var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
@@ -68,18 +77,26 @@ public class RenderObject
             if (!isLineWorthAnalysing)
                 continue;
 
-            switch(parts[0])
+            switch (parts[0])
             {
                 case "v": // Vertex
                     vertices.Add(GetVertexFromParts(parts));
                     break;
-                case "f":
-                    triangleIndexes.Add(GetVertexIndicesFromParts(parts));
+                case "f": // Indices
+                    var faces = GetFacesIndicesFromParts(parts);
+                    triangleIndexes.Add(faces.vertex);
+                    if (faces.texture != null)
+                        textureIndexes.Add(faces.texture.Value);
+                    if (faces.normal != null)
+                        normalIndexes.Add(faces.normal.Value);
+                    else
+                        normalIndexes.Add(faces.vertex);
                     break;
                 case "vn": // vertex normal
                     vertexNormals.Add(GetVertexNormalFromParts(parts));
                     break;
-                case "vt": 
+                case "vt": // texture
+                    texturesCoords.Add(GetVector3FromParts(parts));
                     break;
                 case "vp": // space vertices
                     break;
@@ -90,20 +107,54 @@ public class RenderObject
         return new RenderObject()
         {
             Vertices = vertices.ToArray(),
-            TriangleIndexes = triangleIndexes.ToArray(),
+            VertexIndexes = triangleIndexes.ToArray(),
             VertexNormals = vertexNormals.ToArray(),
+            TextureIndexes = textureIndexes.ToArray(),
+            TextureCoordinates = texturesCoords.ToArray(),
+            NormalIndexes = normalIndexes.ToArray(),
         };
     }
 
-    private static TriangleIndexes GetVertexIndicesFromParts(string[] parts)
+    public static RenderObject FromFilename(string filename)
     {
-        var separated = parts.Skip(1).Select(x =>
-            x.Split('/', StringSplitOptions.RemoveEmptyEntries).Select(y =>
-                int.Parse(y) - 1 // we move indexes so that they start at 0
+        string[] lines = File.ReadAllLines(filename);
+
+        return ProcessObjLines(lines);
+    }
+
+    public static async Task<RenderObject> FromFilenameAsync(string filename)
+    {
+        string[] lines = await File.ReadAllLinesAsync(filename);
+
+        return ProcessObjLines(lines);
+    }
+
+    public static Triangle3 GetTriangleFromIndexes(TriangleIndexes indexes, Vector3[] tab)
+    {
+        return new Triangle3(tab[indexes.a], tab[indexes.b], tab[indexes.c]);
+    }
+
+    private static (TriangleIndexes vertex, TriangleIndexes? texture, TriangleIndexes? normal)
+        GetFacesIndicesFromParts(string[] parts)
+    {
+        var separated = parts.Skip(1) // skip f
+            .Select(x =>
+                x.Split('/', StringSplitOptions.RemoveEmptyEntries).Select(y =>
+                    int.Parse(y) - 1 // we move indexes so that they start at 0
                 ).ToArray()
             ).ToArray();
 
-        return new TriangleIndexes(separated[0][0], separated[1][0], separated[2][0]);
+        var vertex = new TriangleIndexes(separated[0][0], separated[1][0], separated[2][0]);
+
+        bool hasTexture = separated.GetLength(0) > 1 && separated[0][1] != -1;
+        bool hasNormals = separated.GetLength(0) == 3;
+
+        TriangleIndexes? texture = hasTexture ?
+            new TriangleIndexes(separated[0][1], separated[1][1], separated[2][1]) : null;
+        TriangleIndexes? normals = hasNormals ?
+            new TriangleIndexes(separated[0][2], separated[1][2], separated[2][2]) : null;
+
+        return (vertex, texture, normals);
     }
 
     private static Vector4 GetVertexFromParts(string[] array)
@@ -131,8 +182,15 @@ public class RenderObject
         return new Vector3()
         {
             X = float.Parse(array[1]),
-            Y = float.Parse(array[2]),
-            Z = float.Parse(array[3]),
+            Y = array.Length > 2 ? float.Parse(array[2]) : 0f,
+            Z = array.Length > 3 ? float.Parse(array[3]) : 0f,
         };
+    }
+
+    public void LoadTextureFromFilename(string filename)
+    {
+        var bitmap = new Bitmap(filename);
+
+        Texture = new DirectBitmap(bitmap);
     }
 }

@@ -26,7 +26,7 @@ namespace Jednosc.Scene.Examples
                 new Vector4(-A, -A, -A, 1), // 8
             };
 
-            TriangleIndexes = new TriangleIndexes[]
+            VertexIndexes = new TriangleIndexes[]
             {
                 new TriangleIndexes(0, 1, 2),
                 new TriangleIndexes(0, 2, 3),
