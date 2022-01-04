@@ -11,8 +11,26 @@ namespace Jednosc.Scene;
 public record struct TriangleIndexes(int a, int b, int c);
 public record struct Triangle2(Vector2 a, Vector2 b, Vector2 c);
 public record struct TriangleInt2(Point a, Point b, Point c);
-public record struct Triangle3(Vector3 a, Vector3 b, Vector3 c);
-public record struct Triangle4(Vector4 a, Vector4 b, Vector4 c);
+public record struct Triangle3(Vector3 a, Vector3 b, Vector3 c)
+{
+    public Triangle3 Apply(Func<Vector3, Vector3> func)
+    {
+        return new Triangle3(func(a), func(b), func(c));
+    }
+
+    public Triangle3 Transform(Matrix4x4 matrix)
+    {
+        return new Triangle3(Vector3.Transform(a, matrix), Vector3.Transform(b, matrix), Vector3.Transform(c, matrix));
+    }
+}
+
+public record struct Triangle4(Vector4 a, Vector4 b, Vector4 c)
+{
+    public Triangle3 Apply(Func<Vector4, Vector3> func)
+    {
+        return new Triangle3(func(a), func(b), func(c));
+    }
+}
 
 public class RenderObject
 {
@@ -52,7 +70,8 @@ public class RenderObject
 
     public Matrix4x4 ModelMatrix => Matrix4x4.CreateWorld(Position, Forward, Up);
 
-    public DirectBitmap Texture { get; set; }
+    public DirectBitmap? Texture { get; set; }
+    public DirectBitmap? NormalMap { get; set; }
 
     public RenderObject()
     {
@@ -129,9 +148,14 @@ public class RenderObject
         return ProcessObjLines(lines);
     }
 
-    public static Triangle3 GetTriangleFromIndexes(TriangleIndexes indexes, Vector3[] tab)
+    public static Triangle3 GetTriangle3FromIndexes(TriangleIndexes indexes, Vector3[] tab)
     {
         return new Triangle3(tab[indexes.a], tab[indexes.b], tab[indexes.c]);
+    }
+
+    public static Triangle4 GetTriangle4FromIndexes(TriangleIndexes indexes, Vector4[] tab)
+    {
+        return new Triangle4(tab[indexes.a], tab[indexes.b], tab[indexes.c]);
     }
 
     private static (TriangleIndexes vertex, TriangleIndexes? texture, TriangleIndexes? normal)
@@ -192,5 +216,24 @@ public class RenderObject
         var bitmap = new Bitmap(filename);
 
         Texture = new DirectBitmap(bitmap);
+    }
+
+    public void LoadNormalMapFromFilename(string filename)
+    {
+        var bitmap = new Bitmap(filename);
+
+        NormalMap = new DirectBitmap(bitmap);
+    }
+
+    public Triangle4 GetVertex4(int iFace)
+    {
+        var indexes = VertexIndexes[iFace];
+        return GetTriangle4FromIndexes(indexes, Vertices);
+    }
+
+    public Triangle3 GetNormals(int iFace)
+    {
+        var indexes = NormalIndexes[iFace];
+        return GetTriangle3FromIndexes(indexes, VertexNormals);
     }
 }

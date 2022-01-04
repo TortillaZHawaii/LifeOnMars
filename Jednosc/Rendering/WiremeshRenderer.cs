@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Jednosc.Rendering;
 
-public class WiremeshRenderer : IRenderer
+public class WiremeshRenderer
 {
     private DirectBitmap _bitmap;
     private RenderScene _scene;

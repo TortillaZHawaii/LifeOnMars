@@ -8,4 +8,5 @@ namespace Jednosc.Rendering;
 
 public interface IRenderer
 {
+    public void RenderScene();
 }

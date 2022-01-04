@@ -15,7 +15,7 @@ public class TextureRenderer : IRenderer
         _scene = scene;
     }
 
-    public void Render()
+    public void RenderScene()
     {
         float fov = 80 * MathF.PI / 180;
         float aspectRatio = _bitmap.Width / _bitmap.Height;
@@ -174,7 +174,7 @@ public class TextureRenderer : IRenderer
     private static Color GetTextureColor(RenderObject prop, int index, Vector3 bary)
     {
         var textureIndex = prop.TextureIndexes[index];
-        var textureTriangle = RenderObject.GetTriangleFromIndexes(textureIndex, prop.TextureCoordinates);
+        var textureTriangle = RenderObject.GetTriangle3FromIndexes(textureIndex, prop.TextureCoordinates);
 
         var textureXs = new Vector3(textureTriangle.a.X, textureTriangle.b.X, textureTriangle.c.X);
         var textureYs = new Vector3(textureTriangle.a.Y, textureTriangle.b.Y, textureTriangle.c.Y);
@@ -189,7 +189,7 @@ public class TextureRenderer : IRenderer
     private static Vector3 GetNormal(RenderObject prop, int index, Vector3 bary, Vector3[] normals)
     {
         var normalIndex = prop.NormalIndexes[index];
-        var normalTriangle = RenderObject.GetTriangleFromIndexes(normalIndex, normals);
+        var normalTriangle = RenderObject.GetTriangle3FromIndexes(normalIndex, normals);
 
         var xs = new Vector3(normalTriangle.a.X, normalTriangle.b.X, normalTriangle.c.X);
         var ys = new Vector3(normalTriangle.a.Y, normalTriangle.b.Y, normalTriangle.c.Y);

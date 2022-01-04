@@ -8,7 +8,7 @@ namespace LifeOnMars
 {
     public partial class MainForm : Form
     {
-        private TextureRenderer _renderer;
+        private IRenderer _renderer;
         private RenderScene _scene;
         private System.Windows.Forms.Timer _timer;
         private RenderObject _prop;
@@ -26,7 +26,7 @@ namespace LifeOnMars
             };
             _scene = new RenderScene(camera);
 
-            _renderer = new TextureRenderer(bitmap, _scene);
+            _renderer = new RendererMultiThread(bitmap, _scene);
 
             _timer = new System.Windows.Forms.Timer()
             {
@@ -37,18 +37,23 @@ namespace LifeOnMars
 
             _prop = RenderObject.FromFilename(@"C:\Users\dwyso\Downloads\african_head.obj");
             _prop.LoadTextureFromFilename(@"C:\Users\dwyso\Downloads\african_head_diffuse.png");
+            _prop.LoadNormalMapFromFilename(@"C:\Users\dwyso\Downloads\african_head_nm.png");
             _scene.Objects.Add(_prop);
 
-            var light = new Light(Vector3.UnitX * -1f);
+            //_scene.Lights.Add(new Light(Vector3.One));
+            //_scene.Lights.Add(new Light(-3 * Vector3.One, Vector3.UnitZ));
 
-            _scene.Lights.Add(light);
+            _scene.Lights.Add(new Light(Vector3.UnitX * -1f, Vector3.One));
+            //_scene.Lights.Add(new Light(Vector3.UnitX, Vector3.UnitX));
+
+            _scene.BackgroundColor = Color.HotPink;
 
             _timer.Start();
         }
 
         private void _timer_Tick(object? sender, EventArgs e)
         {
-            DrawProp();
+            DrawScene();
         }
 
         private async void PickTeapot()
@@ -66,12 +71,12 @@ namespace LifeOnMars
             _scene.Objects.Add(_prop);
         }
 
-        private void DrawProp()
+        private void DrawScene()
         {
             var stopwatch = new Stopwatch();
 
             stopwatch.Start();
-            _renderer.Render();
+            _renderer.RenderScene();
             stopwatch.Stop();
             _mainPictureBox.Invalidate();
 

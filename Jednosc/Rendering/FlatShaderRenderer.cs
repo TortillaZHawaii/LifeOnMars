@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Jednosc.Rendering;
 
-public class FlatShaderRenderer : IRenderer
+public class FlatShaderRenderer
 {
     private DirectBitmap _bitmap;
     private RenderScene _scene;
