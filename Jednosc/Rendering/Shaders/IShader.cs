@@ -13,6 +13,6 @@ namespace Jednosc.Rendering.Shaders
     {
         public Triangle3 Triangle(int iFace);
 
-        public Color? Fragment(Vector3 bary);
+        public Color Fragment(Vector3 bary);
     }
 }

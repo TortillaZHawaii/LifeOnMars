@@ -22,7 +22,7 @@ namespace Jednosc.Rendering.Shaders
             _mvp = _prop.ModelMatrix * viewPerspective;
         }
 
-        public Color? Fragment(Vector3 bary)
+        public Color Fragment(Vector3 bary)
         {
             return _color;
         }

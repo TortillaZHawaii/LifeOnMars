@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Jednosc.Utilities;
 
-namespace Jednosc.Scene.Prop
+namespace Jednosc.Scene.Props
 {
     public class SphereUV : RenderObject
     {

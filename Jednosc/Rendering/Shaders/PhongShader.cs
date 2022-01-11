@@ -15,6 +15,7 @@ namespace Jednosc.Rendering.Shaders
         private RenderScene _scene;
         private RenderObject _prop;
         private Matrix4x4 _mvp;
+        private Matrix4x4 _modelIT;
 
         private Triangle3 _positionInDisplayCube;
         private Triangle3 _positionInWorld;
@@ -23,14 +24,15 @@ namespace Jednosc.Rendering.Shaders
         private Vector3 _textureXs;
         private Vector3 _textureYs;
 
-        public PhongShader(RenderObject prop, Matrix4x4 viewPerspective, RenderScene scene)
+        public PhongShader(RenderObject prop, Matrix4x4 viewPerspective, Matrix4x4 modelIT, RenderScene scene)
         {
             _prop = prop;
             _mvp = _prop.ModelMatrix * viewPerspective;
             _scene = scene;
+            _modelIT = modelIT;
         }
 
-        public Color? Fragment(Vector3 bary)
+        public Color Fragment(Vector3 bary)
         {
             var position = QMath.InterpolateFromBary(_positionInWorld, bary);
             var normal = QMath.InterpolateFromBary(_normal, bary);
@@ -51,7 +53,7 @@ namespace Jednosc.Rendering.Shaders
 
             _positionInWorld = vertex4.Transform(_prop.ModelMatrix).Apply(ShadingUtils.VnTo3);
             _normal = _prop.GetNormals(iFace)
-                .TransformNormal(_positionInWorld, _prop.ModelMatrix);
+                .TransformNormal(_positionInWorld, _modelIT);
 
             return _positionInDisplayCube;
         }

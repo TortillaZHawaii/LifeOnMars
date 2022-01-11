@@ -15,21 +15,23 @@ namespace Jednosc.Rendering.Shaders
         private RenderScene _scene;
         private RenderObject _prop;
         private Matrix4x4 _mvp;
+        private Matrix4x4 _modelIT;
 
         private Vector3 _textureXs;
         private Vector3 _textureYs;
 
         private Vector3 _triangleShade;
 
-        public FlatShader(RenderObject prop, Matrix4x4 viewPerspective, RenderScene scene)
+        public FlatShader(RenderObject prop, Matrix4x4 viewPerspective, Matrix4x4 modelIT, RenderScene scene)
         {
             _scene = scene;
             _prop = prop;
             _mvp = _prop.ModelMatrix * viewPerspective;
+            _modelIT = modelIT;
         }
 
 
-        public Color? Fragment(Vector3 bary)
+        public Color Fragment(Vector3 bary)
         {
             var textureColor = ShadingUtils.GetBitmapColorVector(bary, _prop.Texture!,
                 _textureXs, _textureYs);
@@ -44,11 +46,11 @@ namespace Jednosc.Rendering.Shaders
             (_textureXs, _textureYs) = ShadingUtils.GetTextureXYs(iFace, _prop);
 
             var baryCenter = new Vector3(1 / 3f);
-            var posTriangle = vertex4.Apply(ShadingUtils.ParseTo3).Transform(_prop.ModelMatrix);
-            var normalTriangle = _prop.GetNormals(iFace).Transform(_prop.ModelMatrix);
+            var posTriangle = vertex4.Transform(_prop.ModelMatrix).Apply(ShadingUtils.VnTo3);
+            var normalTriangle = _prop.GetNormals(iFace).TransformNormal(posTriangle, _modelIT);
 
             var normal = QMath.InterpolateFromBary(normalTriangle, baryCenter);
-            var position = QMath.InterpolateFromBary(normalTriangle, baryCenter);
+            var position = QMath.InterpolateFromBary(posTriangle, baryCenter);
 
             _triangleShade = ShadingUtils.Shading(Vector3.One, position,
                 normal, _prop.Material, _scene.Camera, _scene.Lights);

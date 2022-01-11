@@ -1,7 +1,7 @@
 using Jednosc;
 using Jednosc.Rendering;
 using Jednosc.Scene;
-using Jednosc.Scene.Prop;
+using Jednosc.Scene.Props;
 using System.Diagnostics;
 using System.Numerics;
 

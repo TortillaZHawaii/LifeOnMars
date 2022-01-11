@@ -15,20 +15,22 @@ namespace Jednosc.Rendering.Shaders
         private RenderScene _scene;
         private RenderObject _prop;
         private Matrix4x4 _mvp;
+        private Matrix4x4 _modelIT;
 
         private Vector3 _textureXs;
         private Vector3 _textureYs;
 
         private Triangle3 _triangleShade;
 
-        public GouraudShader(RenderObject prop, Matrix4x4 viewPerspective, RenderScene scene)
+        public GouraudShader(RenderObject prop, Matrix4x4 viewPerspective, Matrix4x4 modelIT, RenderScene scene)
         {
             _scene = scene;
             _prop = prop;
+            _modelIT = modelIT;
             _mvp = _prop.ModelMatrix * viewPerspective;
         }
 
-        public Color? Fragment(Vector3 bary)
+        public Color Fragment(Vector3 bary)
         {
             var textureColor = ShadingUtils.GetBitmapColorVector(bary, _prop.Texture!,
                 _textureXs, _textureYs);
@@ -44,12 +46,9 @@ namespace Jednosc.Rendering.Shaders
 
             (_textureXs, _textureYs) = ShadingUtils.GetTextureXYs(iFace, _prop);
 
-            Matrix4x4.Invert(Matrix4x4.Transpose(_prop.ModelMatrix), out Matrix4x4 model2);
-
             var posTriangle = vertex4.Transform(_prop.ModelMatrix).Apply(ShadingUtils.VnTo3);
             var normalTriangle = _prop.GetNormals(iFace)
-                .TransformNormal(posTriangle, model2);
-                ;
+                .TransformNormal(posTriangle, _modelIT);
 
             // per vertex shading
             _triangleShade = GetShadingTriangle(posTriangle, normalTriangle);

@@ -60,11 +60,14 @@ public class RendererMultiThread : IRenderer
 
     private void DrawProp(RenderObject prop, float[,] zBuffer, Matrix4x4 viewPerspective)
     {
+        Matrix4x4.Invert(Matrix4x4.Transpose(prop.ModelMatrix), out Matrix4x4 modelIT);
+
         //var shader = new TextureShader(prop, viewPerspective);
-        //var shader = new PhongShader(prop, viewPerspective, _scene);
+        var shader = new PhongShader(prop, viewPerspective, modelIT, _scene);
         //var shader = new FlatShader(prop, viewPerspective, _scene);
-        var shader = new GouraudShader(prop, viewPerspective, _scene);
+        //var shader = new GouraudShader(prop, viewPerspective, _scene);
         //var shader = new RandomColorShader(prop, viewPerspective);
+
         for (int iFace = 0; iFace < prop.VertexIndexes.Length; ++iFace)
         {
             FillTriangle(zBuffer, iFace, shader);
@@ -73,7 +76,6 @@ public class RendererMultiThread : IRenderer
 
     private void FillTriangle(float[,] zBuffer, int iFace, IShader shader)
     {
-        // when using scan line we need to preprocess triangles and keep only the in screen ones
         var rawTriangle = shader.Triangle(iFace);
         var triangle = rawTriangle.Apply(Vs);
 
@@ -103,18 +105,18 @@ public class RendererMultiThread : IRenderer
 
                 if(zBuffer[x, y] > z)
                 {
+                    zBuffer[x, y] = z;
+
                     var color = shader.Fragment(bary);
-                    if(color != null)
-                    {
-                        zBuffer[x, y] = z;
-                        _bitmap.SetPixel(x, y, color.Value);
-                    }
+                    var mistedColor = GetColorWithMist(color, z);
+
+                    _bitmap.SetPixel(x, y, mistedColor);
                 }
             }
         });
     }
 
-    private bool IsVertexOutOfCube(Triangle3 triangle)
+    private static bool IsVertexOutOfCube(Triangle3 triangle)
     {
         return triangle.a.X < -1.2f || triangle.a.Y < -1.2f || triangle.a.Z < -1f ||
             triangle.b.X < -1.2f || triangle.b.Y < -1.2f || triangle.b.Z < -1 ||
@@ -122,6 +124,22 @@ public class RendererMultiThread : IRenderer
             triangle.a.X > 1.2f || triangle.a.Y > 1.2f || triangle.a.Z > 1 ||
             triangle.b.X > 1.2f || triangle.b.Y > 1.2f || triangle.b.Z > 1 ||
             triangle.c.X > 1.2f || triangle.c.Y > 1.2f || triangle.c.Z > 1;
+    }
+
+    private static Color GetColorWithMist(Color color, float z)
+    {
+        const float cuttingLimit = 0.98f;
+        const float slope = byte.MaxValue / (1f - cuttingLimit);
+
+        if(z > cuttingLimit)
+        {
+            // hard coded for efficiency
+            int alpha = (int)((-slope * z) + slope);
+
+            return Color.FromArgb(alpha, color);
+        }
+
+        return color;
     }
 
     private Triangle3 Vs(Triangle3 triangle)
@@ -158,7 +176,7 @@ public class RendererMultiThread : IRenderer
 
         Vector3 normal = Vector3.Cross(u, v);
 
-        return Vector3.Normalize(normal);
+        return normal;
     }
 
     private static float GetZ(Vector3 bary, Triangle3 triangle)

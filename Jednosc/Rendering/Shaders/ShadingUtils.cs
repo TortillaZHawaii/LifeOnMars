@@ -91,7 +91,7 @@ namespace Jednosc.Rendering.Shaders
                 Vector3 diffuse = material.Kd * lin * light.DiffuseLight;
                 Vector3 specular = material.Ks * MathF.Pow(rv, material.Alpha) * light.SpecularLight;
 
-                float attenuation = 1f;//light.GetAttenuation(position);
+                float attenuation = light.GetAttenuation(position);
 
                 sum += attenuation * (diffuse + specular);
             }

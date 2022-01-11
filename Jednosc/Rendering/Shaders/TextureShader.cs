@@ -22,7 +22,7 @@ namespace Jednosc.Rendering.Shaders
             _mvp = _prop.ModelMatrix * viewPerspective;
         }
 
-        public Color? Fragment(Vector3 bary)
+        public Color Fragment(Vector3 bary)
         {
             int textureX = (int)(Vector3.Dot(_textureXs, bary) * (_prop.Texture!.Width - 1));
             int textureY = (int)((1 - Vector3.Dot(_textureYs, bary)) * (_prop.Texture!.Height - 1));
