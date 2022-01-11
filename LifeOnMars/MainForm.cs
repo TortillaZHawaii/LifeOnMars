@@ -1,6 +1,7 @@
 using Jednosc;
 using Jednosc.Rendering;
 using Jednosc.Scene;
+using Jednosc.Scene.Prop;
 using System.Diagnostics;
 using System.Numerics;
 
@@ -21,7 +22,7 @@ namespace LifeOnMars
 
             var camera = new Camera()
             {
-                Position = -3 * Vector3.UnitX,
+                Position = 2 * Vector3.UnitZ,//new Vector3(-1.5f, 0.2f, 0.3f),
                 Target = Vector3.Zero,
             };
             _scene = new RenderScene(camera);
@@ -35,18 +36,55 @@ namespace LifeOnMars
 
             _timer.Tick += _timer_Tick;
 
-            _prop = RenderObject.FromFilename(@"C:\Users\dwyso\Downloads\african_head.obj");
-            _prop.LoadTextureFromFilename(@"C:\Users\dwyso\Downloads\african_head_diffuse.png");
-            _prop.LoadNormalMapFromFilename(@"C:\Users\dwyso\Downloads\african_head_nm.png");
-            _scene.Objects.Add(_prop);
+            // http://planetpixelemporium.com/sun.html
+            //_prop = RenderObject.FromFilename(@"C:\Users\dwyso\Downloads\african_head.obj");
+            //_prop.LoadTextureFromFilename(@"C:\Users\dwyso\Downloads\african_head_diffuse.png");
+            //_prop.LoadNormalMapFromFilename(@"C:\Users\dwyso\Downloads\african_head_nm.png");
+            //_scene.Objects.Add(_prop);
+
+            //var sun = new SphereUV(20, 20, 1.0f);
+            //sun.LoadNormalMapFromFilename(@"C:\Users\dwyso\Downloads\mars_1k_normal.jpg");
+            //sun.LoadTextureFromFilename(@"C:\Users\dwyso\Downloads\sunmap.jpg");
+            //_scene.Objects.Add(sun);
+            //sun.Material = new Material()
+            //{
+            //    Ka = 1f,
+            //    Kd = 0f,
+            //    Ks = 0f,
+            //    Alpha = 0,
+            //};
+            //sun.Position = lightPos;
+
+            //var mars = new SphereUV(20, 20, 0.5f);
+            //mars.Material = new Material()
+            //{
+            //    Kd = 0.2f,
+            //    Ka = 0.0f,
+            //    Ks = 1.99f,
+            //    Alpha = 1000,
+            //};
+            //mars.LoadTextureFromFilename(@"C:\Users\dwyso\Downloads\marsmap1k.jpg");
+            //mars.LoadNormalMapFromFilename(@"C:\Users\dwyso\Downloads\mars_1k_normal.jpg");
+            //_scene.Objects.Add(mars);
 
             //_scene.Lights.Add(new Light(Vector3.One));
             //_scene.Lights.Add(new Light(-3 * Vector3.One, Vector3.UnitZ));
+            var lightPos = 2 * Vector3.One;
+            var blueBall = new SphereUV(20, 20, 1.0f);
+            blueBall.Material = new Material() { Ka = 0f, Kd = 1f, Ks = 0f, Alpha = 10 };
+            blueBall.LoadTextureFromFilename(@"D:\szkola\sem5\gk\blue.png");
+            blueBall.LoadNormalMapFromFilename(@"D:\szkola\sem5\gk\blue.png");
 
-            _scene.Lights.Add(new Light(Vector3.UnitX * -1f, Vector3.One));
+            _prop = blueBall;
+            _scene.Objects.Add(_prop);
+            _scene.Lights.Add(new Light(lightPos, Vector3.One));
+            //_scene.Lights.Add(new Light(2 * Vector3.UnitZ, Vector3.One));
+            //_scene.Lights.Add(new Light(-2 * Vector3.UnitX, Vector3.One));
+
+
             //_scene.Lights.Add(new Light(Vector3.UnitX, Vector3.UnitX));
 
-            _scene.BackgroundColor = Color.HotPink;
+            _scene.BackgroundColor = Color.Green;
 
             _timer.Start();
         }
@@ -54,6 +92,9 @@ namespace LifeOnMars
         private void _timer_Tick(object? sender, EventArgs e)
         {
             DrawScene();
+            _lightLabel.Text = $"Light: {_scene.Lights.First().Position}";
+            _cameraLabel.Text = $"Camera: {_scene.Camera.Position}";
+            _ballLabel.Text = $"Ball: {_prop.Position}";
         }
 
         private async void PickTeapot()
@@ -83,11 +124,12 @@ namespace LifeOnMars
             _renderTimeLabel.Text = $"RenderTime is {stopwatch.ElapsedMilliseconds} ms";
         }
 
+
         private void _mainPictureBox_Click(object sender, EventArgs e)
         {
             //PickTeapot();
             //DrawProp();
-            PickAfricanAsync();
+            //PickAfricanAsync();
         }
 
         private void PlayPauseAnimation()

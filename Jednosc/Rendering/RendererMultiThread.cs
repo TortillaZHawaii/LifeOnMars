@@ -30,7 +30,7 @@ public class RendererMultiThread : IRenderer
 
     private Matrix4x4 GetViewPerspective()
     {
-        float fov = 80 * MathF.PI / 180;
+        float fov = 70 * MathF.PI / 180;
         float aspectRatio = _bitmap.Width / _bitmap.Height;
         float nearPlaneDistance = 1f;
         float farPlaneDistance = 20f;
@@ -60,9 +60,12 @@ public class RendererMultiThread : IRenderer
 
     private void DrawProp(RenderObject prop, float[,] zBuffer, Matrix4x4 viewPerspective)
     {
-        var shader = new TextureShader(prop, viewPerspective);
-        //var shader = new LightNormalMapShader(prop, viewPerspective, _scene);
-        for(int iFace = 0; iFace < prop.VertexIndexes.Length; ++iFace)
+        //var shader = new TextureShader(prop, viewPerspective);
+        //var shader = new PhongShader(prop, viewPerspective, _scene);
+        //var shader = new FlatShader(prop, viewPerspective, _scene);
+        var shader = new GouraudShader(prop, viewPerspective, _scene);
+        //var shader = new RandomColorShader(prop, viewPerspective);
+        for (int iFace = 0; iFace < prop.VertexIndexes.Length; ++iFace)
         {
             FillTriangle(zBuffer, iFace, shader);
         }
@@ -158,7 +161,7 @@ public class RendererMultiThread : IRenderer
         return Vector3.Normalize(normal);
     }
 
-    private float GetZ(Vector3 bary, Triangle3 triangle)
+    private static float GetZ(Vector3 bary, Triangle3 triangle)
     {
         return triangle.a.Z * bary.X + triangle.b.Z * bary.Y + triangle.c.Z * bary.Z;
     }
