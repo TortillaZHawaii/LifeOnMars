@@ -1,5 +1,6 @@
 using Jednosc;
 using Jednosc.Rendering;
+using Jednosc.Rendering.Shaders.Factory;
 using Jednosc.Scene;
 using Jednosc.Scene.Lights;
 using Jednosc.Scene.Props;
@@ -14,6 +15,7 @@ namespace LifeOnMars
         private RenderScene _scene;
         private System.Windows.Forms.Timer _timer;
         private RenderObject _prop;
+        private ShaderFactory _shaderFactory;
 
         public MainForm()
         {
@@ -27,8 +29,8 @@ namespace LifeOnMars
                 Target = Vector3.Zero,
             };
             _scene = new RenderScene(camera);
-
-            _renderer = new RendererMultiThread(bitmap, _scene);
+            _shaderFactory = new ShaderFactory();
+            _renderer = new RendererMultiThread(bitmap, _scene, _shaderFactory);
 
             _timer = new System.Windows.Forms.Timer()
             {
@@ -78,7 +80,7 @@ namespace LifeOnMars
 
             _prop = blueBall;
             _scene.Objects.Add(_prop);
-            _scene.Lights.Add(new SpotLight(lightPos, -Vector3.UnitY));
+            _scene.Lights.Add(new PointLight(lightPos));
             //_scene.Lights.Add(new Light(2 * Vector3.UnitZ, Vector3.One));
             //_scene.Lights.Add(new Light(-2 * Vector3.UnitX, Vector3.One));
 
@@ -93,23 +95,6 @@ namespace LifeOnMars
         private void _timer_Tick(object? sender, EventArgs e)
         {
             DrawScene();
-            _cameraLabel.Text = $"Camera: {_scene.Camera.Position}";
-            _ballLabel.Text = $"Ball: {_prop.Position}";
-        }
-
-        private async void PickTeapot()
-        {
-            _scene.Objects.Clear();
-            _prop = await RenderObject.FromFilenameAsync(@"D:\szkola\sem5\gk\teapot.obj");
-            _scene.Objects.Add(_prop);
-        }
-
-        private async void PickAfricanAsync()
-        {
-            _scene.Objects.Clear();
-            _prop = await RenderObject.FromFilenameAsync(@"C:\Users\dwyso\Downloads\african_head.obj");
-            _prop.LoadTextureFromFilename(@"C:\Users\dwyso\Downloads\african_head_diffuse.png");
-            _scene.Objects.Add(_prop);
         }
 
         private void DrawScene()
@@ -121,15 +106,19 @@ namespace LifeOnMars
             stopwatch.Stop();
             _mainPictureBox.Invalidate();
 
-            _renderTimeLabel.Text = $"RenderTime is {stopwatch.ElapsedMilliseconds} ms";
+            SetRenderTimeDisplay(stopwatch.ElapsedMilliseconds);
         }
 
+        private void SetRenderTimeDisplay(long renderTimeInMs)
+        {
+            float fps = (float)1_000 / renderTimeInMs;
+
+            _renderTimeLabel.Text = $"RenderTime: {renderTimeInMs} ms. FPS: {fps:F1}";
+        }
 
         private void _mainPictureBox_Click(object sender, EventArgs e)
         {
-            //PickTeapot();
-            //DrawProp();
-            //PickAfricanAsync();
+            
         }
 
         private void PlayPauseAnimation()

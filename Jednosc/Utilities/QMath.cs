@@ -31,6 +31,33 @@ namespace Jednosc.Utilities
             return m;
         }
 
+        public static Vector3 GetBarycentric(Triangle3 t, int x, int y)
+        {
+            Vector3 vX = new Vector3()
+            {
+                X = t.c.X - t.a.X,
+                Y = t.b.X - t.a.X,
+                Z = t.a.X - x,
+            };
+
+            Vector3 vY = new Vector3()
+            {
+                X = t.c.Y - t.a.Y,
+                Y = t.b.Y - t.a.Y,
+                Z = t.a.Y - y,
+            };
+
+
+            Vector3 u = Vector3.Cross(vX, vY);
+
+            if (MathF.Abs(u.Z) < 1f)
+            {
+                return new Vector3(-1, 1, 1);
+            }
+
+            return new Vector3(1f - (u.X + u.Y) / u.Z, u.Y / u.Z, u.X / u.Z);
+        }
+
         public static Vector3 InterpolateFromBary(Triangle3 triangle, Vector3 bary)
         {
             // probably would be faster if using matrix3x3 but it doesn't exist in System.Numerics
@@ -39,20 +66,6 @@ namespace Jednosc.Utilities
             var tZ = new Vector3(triangle.a.Z, triangle.b.Z, triangle.c.Z);
 
             return new Vector3(Vector3.Dot(tX, bary), Vector3.Dot(tY, bary), Vector3.Dot(tZ, bary));
-        }
-
-        public static Triangle3 Invert(this Triangle3 triangle)
-        {
-            var tX = new Vector3(triangle.a.X, triangle.b.X, triangle.c.X);
-            var tY = new Vector3(triangle.a.Y, triangle.b.Y, triangle.c.Y);
-            var tZ = new Vector3(triangle.a.Z, triangle.b.Z, triangle.c.Z);
-
-            return new Triangle3(tX, tY, tZ);
-        }
-
-        public static Vector3 InterpolateFromBary(Triangle2 triangle, Vector3 bary)
-        {
-            throw new NotImplementedException();
         }
 
         public static Vector3 GetNormalized(this Vector3 vector3)

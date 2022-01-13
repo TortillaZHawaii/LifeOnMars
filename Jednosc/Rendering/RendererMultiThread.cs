@@ -1,5 +1,7 @@
 ﻿using Jednosc.Rendering.Shaders;
+using Jednosc.Rendering.Shaders.Factory;
 using Jednosc.Scene;
+using Jednosc.Utilities;
 using System.Drawing;
 using System.Numerics;
 
@@ -9,11 +11,13 @@ public class RendererMultiThread : IRenderer
 {
     private DirectBitmap _bitmap;
     private RenderScene _scene;
+    private IShaderFactory _shaderFactory;
 
-    public RendererMultiThread(DirectBitmap bitmap, RenderScene scene)
+    public RendererMultiThread(DirectBitmap bitmap, RenderScene scene, IShaderFactory shaderFactory)
     {
         _bitmap = bitmap;
         _scene = scene;
+        _shaderFactory = shaderFactory;
     }
 
     public void RenderScene()
@@ -62,11 +66,7 @@ public class RendererMultiThread : IRenderer
     {
         Matrix4x4.Invert(Matrix4x4.Transpose(prop.ModelMatrix), out Matrix4x4 modelIT);
 
-        //var shader = new TextureShader(prop, viewPerspective);
-        var shader = new PhongShader(prop, viewPerspective, modelIT, _scene);
-        //var shader = new FlatShader(prop, viewPerspective, _scene);
-        //var shader = new GouraudShader(prop, viewPerspective, _scene);
-        //var shader = new RandomColorShader(prop, viewPerspective);
+        var shader = _shaderFactory.CreateShader(prop, viewPerspective, modelIT, _scene);
 
         for (int iFace = 0; iFace < prop.VertexIndexes.Length; ++iFace)
         {
@@ -95,7 +95,7 @@ public class RendererMultiThread : IRenderer
         {
             for (int x = min.X; x <= max.X; ++x)
             {
-                Vector3 bary = GetBarycentric(triangle, x, y);
+                Vector3 bary = QMath.GetBarycentric(triangle, x, y);
 
                 bool isOutOfTriangle = bary.X < 0 || bary.Y < 0 || bary.Z < 0;
                 if (isOutOfTriangle)
@@ -202,32 +202,7 @@ public class RendererMultiThread : IRenderer
         return (new Point(minX, minY), new Point(maxX, maxY));
     }
 
-    private static Vector3 GetBarycentric(Triangle3 t, int x, int y)
-    {
-        Vector3 vX = new Vector3()
-        {
-            X = t.c.X - t.a.X,
-            Y = t.b.X - t.a.X,
-            Z = t.a.X - x,
-        };
-
-        Vector3 vY = new Vector3()
-        {
-            X = t.c.Y - t.a.Y,
-            Y = t.b.Y - t.a.Y,
-            Z = t.a.Y - y,
-        };
-
-
-        Vector3 u = Vector3.Cross(vX, vY);
-
-        if (MathF.Abs(u.Z) < 1f)
-        {
-            return new Vector3(-1, 1, 1);
-        }
-
-        return new Vector3(1f - (u.X + u.Y) / u.Z, u.Y / u.Z, u.X / u.Z);
-    }
+    
 
     private void ClearBitmap()
     {
