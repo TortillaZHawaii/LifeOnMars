@@ -1,6 +1,7 @@
 using Jednosc;
 using Jednosc.Rendering;
 using Jednosc.Scene;
+using Jednosc.Scene.Lights;
 using Jednosc.Scene.Props;
 using System.Diagnostics;
 using System.Numerics;
@@ -77,7 +78,7 @@ namespace LifeOnMars
 
             _prop = blueBall;
             _scene.Objects.Add(_prop);
-            _scene.Lights.Add(new Light(lightPos, Vector3.One));
+            _scene.Lights.Add(new SpotLight(lightPos, -Vector3.UnitY));
             //_scene.Lights.Add(new Light(2 * Vector3.UnitZ, Vector3.One));
             //_scene.Lights.Add(new Light(-2 * Vector3.UnitX, Vector3.One));
 
@@ -92,7 +93,6 @@ namespace LifeOnMars
         private void _timer_Tick(object? sender, EventArgs e)
         {
             DrawScene();
-            _lightLabel.Text = $"Light: {_scene.Lights.First().Position}";
             _cameraLabel.Text = $"Camera: {_scene.Camera.Position}";
             _ballLabel.Text = $"Ball: {_prop.Position}";
         }

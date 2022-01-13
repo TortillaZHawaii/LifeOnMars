@@ -204,39 +204,6 @@ public class TextureRenderer : IRenderer
         return Vector3.Normalize(normal);
     }
 
-    private Color Shading(Vector3 ambientColor, Vector3 position, Vector3 normal)
-    {
-        float ks = 0.0f; // specular
-        float kd = 1f; // diffuse
-        float ka = .3f; // ambient
-        int alpha = 30; // shininess
-
-        Vector3 ambient = ambientColor * ka;
-        Vector3 sum = Vector3.Zero;
-
-        Vector3 toObserver = Vector3.UnitZ;
-
-        foreach(var light in _scene.Lights)
-        {
-            Vector3 toLight = light.GetVersorFrom(position);
-            float lin = Vector3.Dot(toLight, normal);
-
-            Vector3 reflection = 2 * lin * normal - toLight;
-            float rv = Vector3.Dot(reflection, toObserver); 
-
-            Vector3 diffuse = kd * lin * light.DiffuseLight;
-            Vector3 specular = ks * MathF.Pow(rv, alpha) * light.SpecularLight;
-
-            float attenuation = light.GetAttenuation(position);
-
-            sum += attenuation * (diffuse + specular);
-        }
-
-        Vector3 colorVector = ambient + sum;
-
-        return GetColorFromVector(colorVector);
-    }
-
     private static Vector3 GetVectorFromColor(Color color)
     {
         return new Vector3(color.R / 255, color.G / 255, color.B / 255);

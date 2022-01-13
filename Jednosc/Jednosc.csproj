@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <Folder Include="Scene\Cameras\" />
-    <Folder Include="Scene\Lights\" />
   </ItemGroup>
 
 </Project>

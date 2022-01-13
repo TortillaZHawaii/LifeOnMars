@@ -1,4 +1,5 @@
 ﻿using Jednosc.Scene;
+using Jednosc.Scene.Lights;
 using Jednosc.Utilities;
 using System;
 using System.Collections.Generic;
@@ -73,7 +74,7 @@ namespace Jednosc.Rendering.Shaders
         }
 
         public static Vector3 Shading(Vector3 ambientColor, Vector3 position, Vector3 normal,
-            Material material, Camera camera, IEnumerable<Light> lights)
+            Material material, Camera camera, IEnumerable<ILight> lights)
         {
             Vector3 ambient = ambientColor * material.Ka;
             
@@ -82,14 +83,16 @@ namespace Jednosc.Rendering.Shaders
 
             foreach (var light in lights)
             {
-                Vector3 toLight = light.GetVersorFrom(position);
+                Vector3 lightColor = light.GetLightColor(position);
+                Vector3 toLight = light.GetToLightVersor(position);
+
                 float lin = MathF.Max(0, Vector3.Dot(toLight, normal));
 
                 Vector3 reflection = Vector3.Normalize(2 * lin * normal - toLight);
                 float rv = MathF.Max(0, Vector3.Dot(reflection, toObserver));
 
-                Vector3 diffuse = material.Kd * lin * light.DiffuseLight;
-                Vector3 specular = material.Ks * MathF.Pow(rv, material.Alpha) * light.SpecularLight;
+                Vector3 diffuse = material.Kd * lin * lightColor;
+                Vector3 specular = material.Ks * MathF.Pow(rv, material.Alpha) * lightColor;
 
                 float attenuation = light.GetAttenuation(position);
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Jednosc.Scene.Lights;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Jednosc.Scene;
 public class RenderScene
 {
     public Camera Camera { get; set; }
-    public List<Light> Lights { get; init; }
+    public List<ILight> Lights { get; init; }
     public List<RenderObject> Objects { get; init; }
 
     public Color BackgroundColor { get; set; } = Color.Black;
@@ -18,7 +19,7 @@ public class RenderScene
     public RenderScene(Camera camera)
     {
         Camera = camera;
-        Lights = new List<Light>();
+        Lights = new List<ILight>();
         Objects = new List<RenderObject>();
     }
 }
