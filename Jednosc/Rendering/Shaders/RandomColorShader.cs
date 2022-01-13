@@ -1,4 +1,6 @@
 ﻿using Jednosc.Scene;
+using Jednosc.Scene.Props;
+using Jednosc.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

@@ -1,4 +1,5 @@
 ﻿using Jednosc.Scene;
+using Jednosc.Scene.Props;
 using System;
 using System.Collections.Generic;
 using System.Linq;

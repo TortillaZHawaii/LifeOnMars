@@ -1,5 +1,7 @@
-﻿using Jednosc.Scene;
+﻿using Jednosc.Bitmaps;
+using Jednosc.Scene;
 using Jednosc.Scene.Lights;
+using Jednosc.Scene.Props;
 using Jednosc.Utilities;
 using System;
 using System.Collections.Generic;
@@ -45,16 +47,16 @@ namespace Jednosc.Rendering.Shaders
             return t3;
         }
 
-        public static Color GetBitmapColor(Vector3 bary, DirectBitmap bitmap, Vector3 textureXs,
+        public static Color GetBitmapColor(Vector3 bary, IReadBitmap bitmap, Vector3 textureXs,
             Vector3 textureYs)
         {
             int textureX = (int)(Vector3.Dot(textureXs, bary) * (bitmap.Width - 1));
-            int textureY = (int)((1 - Vector3.Dot(textureYs, bary)) * (bitmap.Height - 1));
+            int textureY = (int)(Vector3.Dot(textureYs, bary) * (bitmap.Height - 1));
 
             return bitmap.GetPixel(textureX, textureY);
         }
 
-        public static Vector3 GetBitmapColorVector(Vector3 bary, DirectBitmap bitmap,
+        public static Vector3 GetBitmapColorVector(Vector3 bary, IReadBitmap bitmap,
             Vector3 textureXs, Vector3 textureYs)
         {
             var color = GetBitmapColor(bary, bitmap, textureXs, textureYs);

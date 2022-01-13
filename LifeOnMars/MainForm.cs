@@ -1,4 +1,5 @@
 using Jednosc;
+using Jednosc.Bitmaps;
 using Jednosc.Rendering;
 using Jednosc.Rendering.Shaders.Factory;
 using Jednosc.Scene;
@@ -73,7 +74,7 @@ namespace LifeOnMars
             //_scene.Lights.Add(new Light(Vector3.One));
             //_scene.Lights.Add(new Light(-3 * Vector3.One, Vector3.UnitZ));
             var lightPos = 2 * Vector3.One;
-            var blueBall = new SphereUV(20, 20, 1.0f);
+            var blueBall = SphereUV.Create(20, 20, 1.0f, new Material(), new SingleColorBitmap(Color.Blue), new NormalColorBitmap());
             blueBall.Material = new Material() { Ka = 0f, Kd = 1f, Ks = 0f, Alpha = 10 };
             blueBall.LoadTextureFromFilename(@"D:\szkola\sem5\gk\blue.png");
             blueBall.LoadNormalMapFromFilename(@"D:\szkola\sem5\gk\blue.png");

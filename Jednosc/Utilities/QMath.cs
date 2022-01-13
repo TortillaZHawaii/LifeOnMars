@@ -1,4 +1,5 @@
-﻿using Jednosc.Scene;
+﻿using Jednosc.Rendering.Shaders;
+using Jednosc.Scene;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -71,6 +72,41 @@ namespace Jednosc.Utilities
         public static Vector3 GetNormalized(this Vector3 vector3)
         {
             return Vector3.Normalize(vector3);
+        }
+    }
+
+    public record struct TriangleIndexes(int a, int b, int c);
+    public record struct Triangle2(Vector2 a, Vector2 b, Vector2 c);
+    public record struct TriangleInt2(Point a, Point b, Point c);
+    public record struct Triangle3(Vector3 a, Vector3 b, Vector3 c)
+    {
+        public Triangle3 Apply(Func<Vector3, Vector3> func)
+        {
+            return new Triangle3(func(a), func(b), func(c));
+        }
+
+        public Triangle3 Transform(Matrix4x4 matrix)
+        {
+            var a4 = new Vector4(a, 1f);
+            var b4 = new Vector4(b, 1f);
+            var c4 = new Vector4(c, 1f);
+
+            var t4 = new Triangle4(a4, b4, c4);
+
+            return t4.Transform(matrix).Apply(ShadingUtils.VnTo3);
+        }
+    }
+
+    public record struct Triangle4(Vector4 a, Vector4 b, Vector4 c)
+    {
+        public Triangle3 Apply(Func<Vector4, Vector3> func)
+        {
+            return new Triangle3(func(a), func(b), func(c));
+        }
+
+        public Triangle4 Transform(Matrix4x4 matrix)
+        {
+            return new Triangle4(Vector4.Transform(a, matrix), Vector4.Transform(b, matrix), Vector4.Transform(c, matrix));
         }
     }
 }

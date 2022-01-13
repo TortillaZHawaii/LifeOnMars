@@ -1,4 +1,5 @@
 ﻿using Jednosc.Scene.Lights;
+using Jednosc.Scene.Props;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

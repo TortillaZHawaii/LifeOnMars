@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Jednosc.Bitmaps;
 using Jednosc.Utilities;
 
 namespace Jednosc.Scene.Props
@@ -13,11 +14,9 @@ namespace Jednosc.Scene.Props
         private int _parallelCount;
         private int _meridianCount;
 
-        public SphereUV(int parallelCount, int meridianCount, float radius)
+        public static SphereUV Create(int parallelCount, int meridianCount, float radius, Material material,
+            IReadBitmap texture, IReadBitmap normalMap)
         {
-            _meridianCount = meridianCount;
-            _parallelCount = parallelCount;
-
             float dLat = MathF.PI / parallelCount;
             float dLon = 2 * MathF.PI / meridianCount;
 
@@ -25,18 +24,18 @@ namespace Jednosc.Scene.Props
             var textureCoords = new List<Vector3>();
             var indexes = new List<TriangleIndexes>();
 
-            for(int p = 0; p <= parallelCount; ++p)
+            for (int p = 0; p <= parallelCount; ++p)
             {
                 float lat = p * dLat;
 
-                for(int m = 0; m <= meridianCount; ++m)
+                for (int m = 0; m <= meridianCount; ++m)
                 {
                     float lon = m * dLon;
 
                     vertices.Add(GetVector4FromSpherical(radius, lat, lon));
-                    textureCoords.Add(GetTextureVector(p, m));
+                    textureCoords.Add(GetTextureVector(p, m, parallelCount, meridianCount));
 
-                    if(m != meridianCount)
+                    if (m != meridianCount)
                     {
                         //        p       p + 1
                         // m      a ----- b
@@ -45,10 +44,10 @@ namespace Jednosc.Scene.Props
                         //        |     \ |
                         // m + 1  c ----- d
 
-                        int aIndex = GetIndex(p, m);
-                        int bIndex = GetIndex(p + 1, m);
-                        int cIndex = GetIndex(p, m + 1);
-                        int dIndex = GetIndex(p + 1, m + 1);
+                        int aIndex = GetIndex(p, m, parallelCount, meridianCount);
+                        int bIndex = GetIndex(p + 1, m, parallelCount, meridianCount);
+                        int cIndex = GetIndex(p, m + 1, parallelCount, meridianCount);
+                        int dIndex = GetIndex(p + 1, m + 1, parallelCount, meridianCount);
 
                         // counterclockwise to use backculling
                         indexes.Add(new TriangleIndexes(aIndex, cIndex, dIndex));
@@ -59,15 +58,27 @@ namespace Jednosc.Scene.Props
 
             var normals = vertices.Select(v => new Vector3(v.X, v.Y, v.Z).GetNormalized()).ToArray();
 
-            VertexIndexes = NormalIndexes = TextureIndexes = indexes.ToArray();
-            VertexNormals = normals;
-            TextureCoordinates = textureCoords.ToArray();
-            Vertices = vertices.ToArray();
+            var indexesArr = indexes.ToArray();
+
+            return new SphereUV(parallelCount, meridianCount, radius, vertices.ToArray(),
+                indexesArr, normals, indexesArr, textureCoords.ToArray(), indexesArr,
+                material, texture, normalMap);
         }
 
-        private int GetIndex(int p, int m)
+        private SphereUV(int parallelCount, int meridianCount, float radius,
+            Vector4[] vertices, TriangleIndexes[] verticesIndexes,
+            Vector3[] normals, TriangleIndexes[] normalsIndexes,
+            Vector3[] textures, TriangleIndexes[] textureIndexes,
+            Material material, IReadBitmap texture, IReadBitmap normalMap)
+            : base(vertices, verticesIndexes, normals, normalsIndexes, textures, textureIndexes, material, texture, normalMap)
         {
-            return (p % (_parallelCount + 1)) * (_meridianCount + 1) + m;
+            _parallelCount = parallelCount;
+            _meridianCount = meridianCount;
+        }
+
+        private static int GetIndex(int p, int m, int parallelCount, int meridianCount)
+        {
+            return (p % (parallelCount + 1)) * (meridianCount + 1) + m;
         }
 
         private static Vector4 GetVector4FromSpherical(float radius, float lat, float lon)
@@ -81,9 +92,9 @@ namespace Jednosc.Scene.Props
             };
         }
 
-        private Vector3 GetTextureVector(int p, int m)
+        private static Vector3 GetTextureVector(int p, int m, int parallelCount, int meridianCount)
         {
-            return new Vector3((float)m / _meridianCount, (float)p / _parallelCount, 1f);
+            return new Vector3((float)m / meridianCount, (float)p / parallelCount, 1f);
         }
     }
 }

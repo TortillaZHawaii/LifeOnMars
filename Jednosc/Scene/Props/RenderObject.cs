@@ -1,4 +1,6 @@
-﻿using Jednosc.Rendering.Shaders;
+﻿using Jednosc.Bitmaps;
+using Jednosc.Rendering.Shaders;
+using Jednosc.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,47 +9,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Jednosc.Scene;
-
-public record struct TriangleIndexes(int a, int b, int c);
-public record struct Triangle2(Vector2 a, Vector2 b, Vector2 c);
-public record struct TriangleInt2(Point a, Point b, Point c);
-public record struct Triangle3(Vector3 a, Vector3 b, Vector3 c)
-{
-    public Triangle3 Apply(Func<Vector3, Vector3> func)
-    {
-        return new Triangle3(func(a), func(b), func(c));
-    }
-
-    //public Triangle3 Transform(Matrix4x4 matrix)
-    //{
-    //    return new Triangle3(Vector3.Transform(a, matrix), Vector3.Transform(b, matrix), Vector3.Transform(c, matrix));
-    //}
-
-    public Triangle3 Transform(Matrix4x4 matrix)
-    {
-        var a4 = new Vector4(a, 1f);
-        var b4 = new Vector4(b, 1f);
-        var c4 = new Vector4(c, 1f);
-
-        var t4 = new Triangle4(a4, b4, c4);
-
-        return t4.Transform(matrix).Apply(ShadingUtils.VnTo3);
-    }
-}
-
-public record struct Triangle4(Vector4 a, Vector4 b, Vector4 c)
-{
-    public Triangle3 Apply(Func<Vector4, Vector3> func)
-    {
-        return new Triangle3(func(a), func(b), func(c));
-    }
-
-    public Triangle4 Transform(Matrix4x4 matrix)
-    {
-        return new Triangle4(Vector4.Transform(a, matrix), Vector4.Transform(b, matrix), Vector4.Transform(c, matrix));
-    }
-}
+namespace Jednosc.Scene.Props;
 
 public class RenderObject
 {
@@ -62,13 +24,14 @@ public class RenderObject
     /// Indexes start at 0 and end at <see cref="Vertices"/> length - 1.
     /// </summary>
     public TriangleIndexes[] VertexIndexes { get; init; }
-    public TriangleIndexes[] NormalIndexes { get; init; }
-
-    public TriangleIndexes[] TextureIndexes { get; init; }
 
     public Vector3[] VertexNormals { get; init; }
+    public TriangleIndexes[] NormalIndexes { get; init; }
 
     public Vector3[] TextureCoordinates { get; init; }
+    public TriangleIndexes[] TextureIndexes { get; init; }
+
+
 
     /// <summary>
     /// Position of the object in the space.
@@ -93,12 +56,26 @@ public class RenderObject
 
     public Material Material { get; set; }
 
-    public DirectBitmap? Texture { get; set; }
-    public DirectBitmap? NormalMap { get; set; }
+    public IReadBitmap Texture { get; set; }
+    public IReadBitmap NormalMap { get; set; }
 
-    public RenderObject()
+    public RenderObject(Vector4[] vertices, TriangleIndexes[] verticesIndexes,
+        Vector3[] normals, TriangleIndexes[] normalsIndexes,
+        Vector3[] textures, TriangleIndexes[] textureIndexes,
+        Material material, IReadBitmap texture, IReadBitmap normalMap)
     {
+        Vertices = vertices;
+        VertexIndexes = verticesIndexes;
         
+        VertexNormals = normals;
+        NormalIndexes = normalsIndexes;
+
+        TextureCoordinates = textures;
+        TextureIndexes = textureIndexes;
+
+        Material = material;
+        Texture = texture;
+        NormalMap = normalMap;
     }
 
     private static RenderObject ProcessObjLines(string[] lines)
@@ -146,15 +123,11 @@ public class RenderObject
             }
         }
 
-        return new RenderObject()
-        {
-            Vertices = vertices.ToArray(),
-            VertexIndexes = triangleIndexes.ToArray(),
-            VertexNormals = vertexNormals.ToArray(),
-            TextureIndexes = textureIndexes.ToArray(),
-            TextureCoordinates = texturesCoords.ToArray(),
-            NormalIndexes = normalIndexes.ToArray(),
-        };
+        return new RenderObject(vertices.ToArray(), triangleIndexes.ToArray(),
+            vertexNormals.ToArray(), normalIndexes.ToArray(), 
+            texturesCoords.ToArray(), textureIndexes.ToArray(),
+            new Material(), new SingleColorBitmap(Color.Blue), new NormalColorBitmap()
+            );
     }
 
     public static RenderObject FromFilename(string filename)

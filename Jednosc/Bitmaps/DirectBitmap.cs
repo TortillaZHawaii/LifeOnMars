@@ -2,12 +2,12 @@
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace Jednosc;
+namespace Jednosc.Bitmaps;
 
 /// <remarks>
 /// Adapted from https://stackoverflow.com/questions/24701703/c-sharp-faster-alternatives-to-setpixel-and-getpixel-for-bitmaps-for-windows-f
 /// </remarks>
-public class DirectBitmap : IDisposable
+public class DirectBitmap : IDisposable, IReadBitmap, IWriteBitmap
 {
     public Bitmap Bitmap { get; private set; }
     public int[] Bits { get; private set; }

@@ -1,6 +1,8 @@
-﻿using Jednosc.Rendering.Shaders;
+﻿using Jednosc.Bitmaps;
+using Jednosc.Rendering.Shaders;
 using Jednosc.Rendering.Shaders.Factory;
 using Jednosc.Scene;
+using Jednosc.Scene.Props;
 using Jednosc.Utilities;
 using System.Drawing;
 using System.Numerics;
@@ -140,11 +142,6 @@ public class RendererMultiThread : IRenderer
         }
 
         return color;
-    }
-
-    private Triangle3 Vs(Triangle3 triangle)
-    {
-        return triangle.Apply(Vs);
     }
 
     private Vector3 Vs(Vector3 vector)
