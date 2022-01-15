@@ -23,8 +23,12 @@ namespace LifeOnMars
         private RenderObject _mars;
         private RenderObject _sun;
 
-        private DirectionalLight _robotLight;
+        private SpotLight _robotLaser;
+        private SpotLight _robotLightClose;
+
         private PointLight _sunLight;
+
+        private Camera _camera;
 
         public MainForm()
         {
@@ -32,12 +36,13 @@ namespace LifeOnMars
             var bitmap = new DirectBitmap(_mainPictureBox.Width, _mainPictureBox.Height);
             _mainPictureBox.Image = bitmap.Bitmap;
 
-            var camera = new Camera()
+            _camera = new Camera()
             {
-                Position = 2 * Vector3.UnitZ,//new Vector3(-1.5f, 0.2f, 0.3f),
+                Position = 7 * Vector3.One,
                 Target = Vector3.Zero,
             };
-            _scene = new RenderScene(camera);
+
+            _scene = new RenderScene(_camera);
             _shaderFactory = new ShaderFactory();
             _renderer = new RendererMultiThread(bitmap, _scene, _shaderFactory);
 
@@ -53,38 +58,124 @@ namespace LifeOnMars
             };
             _animationTimer.Tick += Animation_Tick;
 
-            var lightPos = 2 * Vector3.One;
-            _robot = PropsFactory.GetWheatley();
-
+            _robot = PropsFactory.GetMars();
             _scene.Objects.Add(_robot);
+            
+            _mars = PropsFactory.GetMars();
+            _mars.ModelMatrix = Matrix4x4.Identity;
+            _scene.Objects.Add(_mars);
 
-            _scene.Lights.Add(new PointLight(lightPos));
+            _sun = PropsFactory.GetSun();
+            _sun.ModelMatrix = Matrix4x4.Identity;
+            _scene.Objects.Add(_sun);
+
+            _sunLight = new PointLight(Vector3.Zero)
+            {
+                Al = 0.05f,
+                Aq = 0f,
+            };
+            _robotLaser = new SpotLight(Vector3.Zero, Vector3.UnitX)
+            {
+                Color = Vector3.UnitZ,
+                Power = 50,
+            };
+            _robotLightClose = new SpotLight(Vector3.Zero, Vector3.UnitX)
+            {
+                Color = Vector3.UnitX,
+                Power = 2,
+            };
+
+            _scene.Lights.Add(_sunLight);
+            _scene.Lights.Add(_robotLaser);
 
             _scene.BackgroundColor = Color.Green;
 
-            _renderTimer.Start();
             _animationTimer.Start();
+            _renderTimer.Start();
         }
+
+        #region animations
+        private float marsRotation = 0f;
+        
+        private float _robotRotation = 0f;
+        private float _robotLightAngle = 0f;
 
         private void Animation_Tick(object? sender, EventArgs e)
         {
-            RotateProp();
+            marsRotation += 0.1f;
+            _robotRotation += 0.05f;
+            _robotLightAngle += 0.12f;
+            const float lightAngleLimit = 0.5f;
+            if(_robotLightAngle > lightAngleLimit)
+            {
+                _robotLightAngle = -lightAngleLimit;
+            }
+
+            AnimateSun();
+            AnimateMars();
+            AnimateRobot();
+
+            AnimateCamera();
         }
+
+        private void AnimateCamera()
+        {
+            // follow mars
+            var marsPosition = _mars.ModelMatrix.Translation;
+            _camera.Target = marsPosition;
+
+            // follow robot
+            float robotHeightAngle = 0.5f * _robotRotation;
+            float robotOrbit = 2f + 0.5f * MathF.Sin(robotHeightAngle);
+            float robotCameraOrbit = robotOrbit + 0.7f;
+            _camera.Position =
+                (Matrix4x4.CreateTranslation(robotCameraOrbit, 0.3f, 0f)
+                * Matrix4x4.CreateRotationY(_robotRotation)
+                * Matrix4x4.CreateTranslation(marsPosition))
+                .Translation;
+        }
+
+        private void AnimateRobot()
+        {
+            var marsPosition = _mars.ModelMatrix.Translation;
+            float robotHeightAngle = 0.5f * _robotRotation;
+            float robotOrbit = 2f + 0.5f * MathF.Sin(robotHeightAngle);
+
+            _robot.ModelMatrix =
+                Matrix4x4.CreateScale(0.1f)
+                * Matrix4x4.CreateTranslation(robotOrbit, 0, 0)
+                * Matrix4x4.CreateRotationY(_robotRotation)
+                * Matrix4x4.CreateTranslation(marsPosition);
+
+            _robotLaser.Position = _robot.ModelMatrix.Translation;
+            _robotLaser.Direction = (marsPosition + _robotLightAngle *  Vector3.UnitY) - _robotLaser.Position;
+            
+            _robotLightClose.Position = _robot.ModelMatrix.Translation;
+            _robotLightClose.Direction = marsPosition - _robotLaser.Position;
+            //_robotLightClose.Color = robotOrbit < 2f ? Vector3.UnitX : Vector3.Zero;
+        }
+
+        private void AnimateSun()
+        {
+            _sun.ModelMatrix = Matrix4x4.CreateTranslation(Vector3.Zero);
+        }
+
+        private void AnimateMars()
+        {
+            const float orbitRadius = 12f;
+
+            _mars.ModelMatrix =
+                Matrix4x4.Identity
+                * Matrix4x4.CreateTranslation(0, 0, orbitRadius)
+                * Matrix4x4.CreateRotationY(marsRotation);
+        }
+
+
+        #endregion
 
         private void Render_Tick(object? sender, EventArgs e)
         {
             DrawScene();
-        }
-
-        private static float alpha = 0f;
-
-        private void RotateProp()
-        {
-            alpha += 0.1f;
-            _robot.ModelMatrix =
-                Matrix4x4.CreateScale(0.01f)
-                * Matrix4x4.CreateRotationY(alpha)
-                * Matrix4x4.CreateTranslation(0f, 0.5f * MathF.Sin(alpha), 0f);
         }
 
 
