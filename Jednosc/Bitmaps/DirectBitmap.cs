@@ -42,6 +42,12 @@ public class DirectBitmap : IDisposable, IReadBitmap, IWriteBitmap
         this.CopyFrom(bitmap);
     }
 
+    public static DirectBitmap LoadBitmapFromFilename(string filename)
+    {
+        var bitmap = new Bitmap(filename);
+        return new DirectBitmap(bitmap);
+    }
+
     public void SetPixel(int x, int y, Color color)
     {
         if (IsOutside(x, y))

@@ -36,7 +36,7 @@ public class RendererMultiThread : IRenderer
 
     private Matrix4x4 GetViewPerspective()
     {
-        float fov = 70 * MathF.PI / 180;
+        float fov = 80 * MathF.PI / 180;
         float aspectRatio = _bitmap.Width / _bitmap.Height;
         float nearPlaneDistance = 1f;
         float farPlaneDistance = 20f;
@@ -67,6 +67,8 @@ public class RendererMultiThread : IRenderer
     private void DrawProp(RenderObject prop, float[,] zBuffer, Matrix4x4 viewPerspective)
     {
         Matrix4x4.Invert(Matrix4x4.Transpose(prop.ModelMatrix), out Matrix4x4 modelIT);
+
+        //var shaderTriangle = Enumerable.Range(0, prop.VertexIndexes.Length).AsParallel().
 
         var shader = _shaderFactory.CreateShader(prop, viewPerspective, modelIT, _scene);
 

@@ -51,7 +51,7 @@ namespace Jednosc.Rendering.Shaders
             Vector3 textureYs)
         {
             int textureX = (int)(Vector3.Dot(textureXs, bary) * (bitmap.Width - 1));
-            int textureY = (int)(Vector3.Dot(textureYs, bary) * (bitmap.Height - 1));
+            int textureY = (int)((1 - Vector3.Dot(textureYs, bary)) * (bitmap.Height - 1));
 
             return bitmap.GetPixel(textureX, textureY);
         }

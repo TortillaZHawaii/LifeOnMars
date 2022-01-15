@@ -11,9 +11,6 @@ namespace Jednosc.Scene.Props
 {
     public class SphereUV : RenderObject
     {
-        private int _parallelCount;
-        private int _meridianCount;
-
         public static SphereUV Create(int parallelCount, int meridianCount, float radius, Material material,
             IReadBitmap texture, IReadBitmap normalMap)
         {
@@ -60,20 +57,18 @@ namespace Jednosc.Scene.Props
 
             var indexesArr = indexes.ToArray();
 
-            return new SphereUV(parallelCount, meridianCount, radius, vertices.ToArray(),
+            return new SphereUV(vertices.ToArray(),
                 indexesArr, normals, indexesArr, textureCoords.ToArray(), indexesArr,
                 material, texture, normalMap);
         }
 
-        private SphereUV(int parallelCount, int meridianCount, float radius,
+        private SphereUV(
             Vector4[] vertices, TriangleIndexes[] verticesIndexes,
             Vector3[] normals, TriangleIndexes[] normalsIndexes,
             Vector3[] textures, TriangleIndexes[] textureIndexes,
             Material material, IReadBitmap texture, IReadBitmap normalMap)
             : base(vertices, verticesIndexes, normals, normalsIndexes, textures, textureIndexes, material, texture, normalMap)
         {
-            _parallelCount = parallelCount;
-            _meridianCount = meridianCount;
         }
 
         private static int GetIndex(int p, int m, int parallelCount, int meridianCount)

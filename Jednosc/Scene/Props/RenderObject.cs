@@ -48,11 +48,7 @@ public class RenderObject
     /// </summary>
     public static Vector3 Up => Vector3.UnitY;
 
-    public Matrix4x4 ModelMatrix => new Matrix4x4(
-        1f, 0f, 0f, 0f,
-        0f, 1f, 0f, 0f,
-        0f, 0f, 1f, 0f,
-        Position.X, Position.Y, Position.Z, 1f);
+    public Matrix4x4 ModelMatrix { get; set; }
 
     public Material Material { get; set; }
 
@@ -76,6 +72,8 @@ public class RenderObject
         Material = material;
         Texture = texture;
         NormalMap = normalMap;
+
+        ModelMatrix = Matrix4x4.Identity;
     }
 
     private static RenderObject ProcessObjLines(string[] lines)
@@ -128,6 +126,13 @@ public class RenderObject
             texturesCoords.ToArray(), textureIndexes.ToArray(),
             new Material(), new SingleColorBitmap(Color.Blue), new NormalColorBitmap()
             );
+    }
+
+    public static RenderObject FromUTF8Bytes(byte[] bytes)
+    {
+        string[] lines = Encoding.UTF8.GetString(bytes).Split('\n');
+
+        return ProcessObjLines(lines);
     }
 
     public static RenderObject FromFilename(string filename)

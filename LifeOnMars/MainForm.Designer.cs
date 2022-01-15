@@ -30,17 +30,19 @@
         {
             this._mainPictureBox = new System.Windows.Forms.PictureBox();
             this._renderTimeLabel = new System.Windows.Forms.Label();
-            this._lightLabel = new System.Windows.Forms.Label();
-            this._ballLabel = new System.Windows.Forms.Label();
-            this._cameraLabel = new System.Windows.Forms.Label();
+            this._shaderGroupBox = new System.Windows.Forms.GroupBox();
+            this._flatShaderRadio = new System.Windows.Forms.RadioButton();
+            this._gouroudShaderRadio = new System.Windows.Forms.RadioButton();
+            this._phongShaderRadio = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this._mainPictureBox)).BeginInit();
+            this._shaderGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // _mainPictureBox
             // 
             this._mainPictureBox.Location = new System.Drawing.Point(12, 12);
             this._mainPictureBox.Name = "_mainPictureBox";
-            this._mainPictureBox.Size = new System.Drawing.Size(679, 679);
+            this._mainPictureBox.Size = new System.Drawing.Size(766, 679);
             this._mainPictureBox.TabIndex = 0;
             this._mainPictureBox.TabStop = false;
             this._mainPictureBox.Click += new System.EventHandler(this._mainPictureBox_Click);
@@ -54,47 +56,65 @@
             this._renderTimeLabel.TabIndex = 1;
             this._renderTimeLabel.Text = "RenderTime:";
             // 
-            // _lightLabel
+            // _shaderGroupBox
             // 
-            this._lightLabel.AutoSize = true;
-            this._lightLabel.Location = new System.Drawing.Point(697, 12);
-            this._lightLabel.Name = "_lightLabel";
-            this._lightLabel.Size = new System.Drawing.Size(38, 15);
-            this._lightLabel.TabIndex = 2;
-            this._lightLabel.Text = "label1";
+            this._shaderGroupBox.Controls.Add(this._phongShaderRadio);
+            this._shaderGroupBox.Controls.Add(this._gouroudShaderRadio);
+            this._shaderGroupBox.Controls.Add(this._flatShaderRadio);
+            this._shaderGroupBox.Location = new System.Drawing.Point(784, 12);
+            this._shaderGroupBox.Name = "_shaderGroupBox";
+            this._shaderGroupBox.Size = new System.Drawing.Size(201, 97);
+            this._shaderGroupBox.TabIndex = 2;
+            this._shaderGroupBox.TabStop = false;
+            this._shaderGroupBox.Text = "Shader";
             // 
-            // _ballLabel
+            // _flatShaderRadio
             // 
-            this._ballLabel.AutoSize = true;
-            this._ballLabel.Location = new System.Drawing.Point(697, 36);
-            this._ballLabel.Name = "_ballLabel";
-            this._ballLabel.Size = new System.Drawing.Size(38, 15);
-            this._ballLabel.TabIndex = 3;
-            this._ballLabel.Text = "label2";
+            this._flatShaderRadio.AutoSize = true;
+            this._flatShaderRadio.Location = new System.Drawing.Point(6, 22);
+            this._flatShaderRadio.Name = "_flatShaderRadio";
+            this._flatShaderRadio.Size = new System.Drawing.Size(44, 19);
+            this._flatShaderRadio.TabIndex = 0;
+            this._flatShaderRadio.TabStop = true;
+            this._flatShaderRadio.Text = "Flat";
+            this._flatShaderRadio.UseVisualStyleBackColor = true;
             // 
-            // _cameraLabel
+            // _gouroudShaderRadio
             // 
-            this._cameraLabel.AutoSize = true;
-            this._cameraLabel.Location = new System.Drawing.Point(697, 62);
-            this._cameraLabel.Name = "_cameraLabel";
-            this._cameraLabel.Size = new System.Drawing.Size(38, 15);
-            this._cameraLabel.TabIndex = 4;
-            this._cameraLabel.Text = "label3";
+            this._gouroudShaderRadio.AutoSize = true;
+            this._gouroudShaderRadio.Location = new System.Drawing.Point(6, 47);
+            this._gouroudShaderRadio.Name = "_gouroudShaderRadio";
+            this._gouroudShaderRadio.Size = new System.Drawing.Size(72, 19);
+            this._gouroudShaderRadio.TabIndex = 1;
+            this._gouroudShaderRadio.TabStop = true;
+            this._gouroudShaderRadio.Text = "Gouroud";
+            this._gouroudShaderRadio.UseVisualStyleBackColor = true;
+            // 
+            // _phongShaderRadio
+            // 
+            this._phongShaderRadio.AutoSize = true;
+            this._phongShaderRadio.Location = new System.Drawing.Point(6, 72);
+            this._phongShaderRadio.Name = "_phongShaderRadio";
+            this._phongShaderRadio.Size = new System.Drawing.Size(60, 19);
+            this._phongShaderRadio.TabIndex = 2;
+            this._phongShaderRadio.TabStop = true;
+            this._phongShaderRadio.Text = "Phong";
+            this._phongShaderRadio.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(892, 718);
-            this.Controls.Add(this._cameraLabel);
-            this.Controls.Add(this._ballLabel);
-            this.Controls.Add(this._lightLabel);
+            this.ClientSize = new System.Drawing.Size(997, 718);
+            this.Controls.Add(this._shaderGroupBox);
             this.Controls.Add(this._renderTimeLabel);
             this.Controls.Add(this._mainPictureBox);
             this.Name = "MainForm";
             this.Text = "Form1";
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.MainForm_KeyPress);
             ((System.ComponentModel.ISupportInitialize)(this._mainPictureBox)).EndInit();
+            this._shaderGroupBox.ResumeLayout(false);
+            this._shaderGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -104,8 +124,9 @@
 
         private PictureBox _mainPictureBox;
         private Label _renderTimeLabel;
-        private Label _lightLabel;
-        private Label _ballLabel;
-        private Label _cameraLabel;
+        private GroupBox _shaderGroupBox;
+        private RadioButton _phongShaderRadio;
+        private RadioButton _gouroudShaderRadio;
+        private RadioButton _flatShaderRadio;
     }
 }
