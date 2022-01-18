@@ -13,6 +13,13 @@ namespace LifeOnMars
 {
     public partial class MainForm : Form
     {
+        private enum CameraMode
+        {
+            Fixed,
+            Following,
+            OnObject,
+        }
+
         private IRenderer _renderer;
         private RenderScene _scene;
         private System.Windows.Forms.Timer _renderTimer;
@@ -29,6 +36,7 @@ namespace LifeOnMars
         private PointLight _sunLight;
 
         private Camera _camera;
+        private CameraMode _cameraMode = CameraMode.Fixed;
 
         public MainForm()
         {
@@ -58,7 +66,7 @@ namespace LifeOnMars
             };
             _animationTimer.Tick += Animation_Tick;
 
-            _robot = PropsFactory.GetMars();
+            _robot = PropsFactory.GetSat();
             _scene.Objects.Add(_robot);
             
             _mars = PropsFactory.GetMars();
@@ -81,14 +89,15 @@ namespace LifeOnMars
             };
             _robotLightClose = new SpotLight(Vector3.Zero, Vector3.UnitX)
             {
-                Color = Vector3.UnitX,
-                Power = 2,
+                Color = Vector3.UnitY,
+                Power = 100,
             };
 
             _scene.Lights.Add(_sunLight);
             _scene.Lights.Add(_robotLaser);
+            _scene.Lights.Add(_robotLightClose);
 
-            _scene.BackgroundColor = Color.Green;
+            _scene.BackgroundColor = Color.Black;
 
             _animationTimer.Start();
             _renderTimer.Start();
@@ -120,19 +129,36 @@ namespace LifeOnMars
 
         private void AnimateCamera()
         {
-            // follow mars
             var marsPosition = _mars.ModelMatrix.Translation;
-            _camera.Target = marsPosition;
 
-            // follow robot
-            float robotHeightAngle = 0.5f * _robotRotation;
-            float robotOrbit = 2f + 0.5f * MathF.Sin(robotHeightAngle);
-            float robotCameraOrbit = robotOrbit + 0.7f;
-            _camera.Position =
-                (Matrix4x4.CreateTranslation(robotCameraOrbit, 0.3f, 0f)
-                * Matrix4x4.CreateRotationY(_robotRotation)
-                * Matrix4x4.CreateTranslation(marsPosition))
-                .Translation;
+            bool isFollowingMars = _cameraMode == CameraMode.Following || _cameraMode == CameraMode.OnObject;
+
+            if (isFollowingMars)
+            {
+                _camera.Target = marsPosition;
+            }
+            else
+            {
+                _camera.Target = Vector3.Zero;
+            }
+
+            if(_cameraMode == CameraMode.OnObject)
+            {
+                // follow robot
+                float robotHeightAngle = 0.5f * _robotRotation;
+                float robotOrbit = 2f + 0.5f * MathF.Sin(robotHeightAngle);
+                float robotCameraOrbit = robotOrbit + 0.7f;
+                _camera.Position =
+                    (Matrix4x4.CreateTranslation(robotCameraOrbit, 0.5f, -0.6f)
+                    * Matrix4x4.CreateRotationY(_robotRotation)
+                    * Matrix4x4.CreateTranslation(marsPosition))
+                    .Translation;
+            }
+            else
+            {
+                _camera.Position = 7 * Vector3.One;
+            }
+
         }
 
         private void AnimateRobot()
@@ -143,16 +169,17 @@ namespace LifeOnMars
 
             _robot.ModelMatrix =
                 Matrix4x4.CreateScale(0.1f)
+                * Matrix4x4.CreateRotationZ(3 * MathF.PI/2)
+                * Matrix4x4.CreateRotationX(MathF.PI)
                 * Matrix4x4.CreateTranslation(robotOrbit, 0, 0)
                 * Matrix4x4.CreateRotationY(_robotRotation)
                 * Matrix4x4.CreateTranslation(marsPosition);
 
             _robotLaser.Position = _robot.ModelMatrix.Translation;
-            _robotLaser.Direction = (marsPosition + _robotLightAngle *  Vector3.UnitY) - _robotLaser.Position;
+            _robotLaser.Direction = (marsPosition + 2 * _robotLightAngle * Vector3.UnitY) - _robotLaser.Position;
             
             _robotLightClose.Position = _robot.ModelMatrix.Translation;
-            _robotLightClose.Direction = marsPosition - _robotLaser.Position;
-            //_robotLightClose.Color = robotOrbit < 2f ? Vector3.UnitX : Vector3.Zero;
+            _robotLightClose.Direction = (marsPosition - 3 * _robotLightAngle * Vector3.UnitY) - _robotLightClose.Position;
         }
 
         private void AnimateSun()
@@ -200,19 +227,19 @@ namespace LifeOnMars
 
         private void _mainPictureBox_Click(object sender, EventArgs e)
         {
-            
+            PlayPauseAnimation();
         }
 
         private void PlayPauseAnimation()
         {
-            if(_renderTimer.Enabled)
+            if(_animationTimer.Enabled)
             {
-                _renderTimer.Stop();
+                //_renderTimer.Stop();
                 _animationTimer.Stop();
             }
             else
             {
-                _renderTimer.Start();
+                //_renderTimer.Start();
                 _animationTimer.Start();
             }
         }
@@ -223,5 +250,58 @@ namespace LifeOnMars
                 PlayPauseAnimation();
         }
 
+        private void _flatShaderRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            ChangeShader();
+        }
+
+        private void _gouroudShaderRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            ChangeShader();
+        }
+
+        private void _phongShaderRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            ChangeShader();
+        }
+
+        private void ChangeShader()
+        {
+            var shader = _shaderFactory.SelectedShader;
+
+            if (_flatShaderRadio.Checked)
+                shader = Shaders.Flat;
+            if (_phongShaderRadio.Checked)
+                shader = Shaders.Phong;
+            if (_gouroudShaderRadio.Checked)
+                shader = Shaders.Gouroud;
+
+            _shaderFactory.SelectedShader = shader;
+        }
+
+        private void _fixedCameraRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            ChangeCameraMode();
+        }
+
+        private void _followingCameraRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            ChangeCameraMode();
+        }
+
+        private void _onObjectCameraRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            ChangeCameraMode();
+        }
+
+        private void ChangeCameraMode()
+        {
+            if (_fixedCameraRadio.Checked)
+                _cameraMode = CameraMode.Fixed;
+            if (_followingCameraRadio.Checked)
+                _cameraMode = CameraMode.Following;
+            if (_onObjectCameraRadio.Checked)
+                _cameraMode = CameraMode.OnObject;
+        }
     }
 }

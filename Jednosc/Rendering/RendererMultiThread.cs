@@ -130,15 +130,16 @@ public class RendererMultiThread : IRenderer
 
     private static Color GetColorWithMist(Color color, float z)
     {
-        const float cuttingLimit = 0.98f;
-        const float slope = byte.MaxValue / (1f - cuttingLimit);
+        const float cuttingLimit = 0.95f;
+        const float slope = 1f / (1f - cuttingLimit);
 
         if(z > cuttingLimit)
         {
-            // hard coded for efficiency
-            int alpha = (int)((-slope * z) + slope);
+            float alpha = (-slope * z) + slope;
 
-            return Color.FromArgb(alpha, color);
+            var newColor = QMath.GetColorFromVector(QMath.GetVectorFromColor(color) * alpha);
+
+            return newColor;
         }
 
         return color;

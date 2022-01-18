@@ -53,8 +53,8 @@ namespace LifeOnMars.SceneProps
             {
                 Alpha = 20,
                 Ka = 0,
-                Ks = 0.5f,
-                Kd = 0.8f,
+                Ks = 0.9f,
+                Kd = 0.6f,
             };
 
             var texture = new DirectBitmap(Wheatley.Resources.Texture);
@@ -66,6 +66,27 @@ namespace LifeOnMars.SceneProps
             wheatley.NormalMap = normal;
 
             return wheatley;
+        }
+
+        public static RenderObject GetSat()
+        {
+            var material = new Material()
+            {
+                Alpha = 20,
+                Ka = 0,
+                Ks = 0.9f,
+                Kd = 0.6f,
+            };
+
+            var texture = new DirectBitmap(Sat.Resources.Texture);
+            var normal = new NormalColorBitmap();
+
+            var sat = RenderObject.FromUTF8Bytes(Sat.Resources.Model);
+            sat.Texture = texture;
+            sat.Material = material;
+            sat.NormalMap = normal;
+
+            return sat;
         }
     }
 }
