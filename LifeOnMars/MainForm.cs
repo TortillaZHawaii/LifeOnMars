@@ -111,9 +111,9 @@ namespace LifeOnMars
 
         private void Animation_Tick(object? sender, EventArgs e)
         {
-            marsRotation += 0.1f;
-            _robotRotation += 0.05f;
-            _robotLightAngle += 0.12f;
+            marsRotation += 0.05f;
+            _robotRotation += 0.025f;
+            _robotLightAngle += 0.06f;
             const float lightAngleLimit = 0.5f;
             if(_robotLightAngle > lightAngleLimit)
             {
