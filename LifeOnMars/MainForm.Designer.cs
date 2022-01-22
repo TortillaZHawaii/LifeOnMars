@@ -50,7 +50,7 @@
             this._mainPictureBox.Size = new System.Drawing.Size(766, 679);
             this._mainPictureBox.TabIndex = 0;
             this._mainPictureBox.TabStop = false;
-            this._mainPictureBox.Click += new System.EventHandler(this._mainPictureBox_Click);
+            this._mainPictureBox.Click += new System.EventHandler(this.MainPictureBox_Click);
             // 
             // _renderTimeLabel
             // 
@@ -83,7 +83,7 @@
             this._phongShaderRadio.TabStop = true;
             this._phongShaderRadio.Text = "Phong";
             this._phongShaderRadio.UseVisualStyleBackColor = true;
-            this._phongShaderRadio.CheckedChanged += new System.EventHandler(this._phongShaderRadio_CheckedChanged);
+            this._phongShaderRadio.CheckedChanged += new System.EventHandler(this.PhongShaderRadio_CheckedChanged);
             // 
             // _gouroudShaderRadio
             // 
@@ -95,7 +95,7 @@
             this._gouroudShaderRadio.TabStop = true;
             this._gouroudShaderRadio.Text = "Gouroud";
             this._gouroudShaderRadio.UseVisualStyleBackColor = true;
-            this._gouroudShaderRadio.CheckedChanged += new System.EventHandler(this._gouroudShaderRadio_CheckedChanged);
+            this._gouroudShaderRadio.CheckedChanged += new System.EventHandler(this.GouroudShaderRadio_CheckedChanged);
             // 
             // _flatShaderRadio
             // 
@@ -107,7 +107,7 @@
             this._flatShaderRadio.TabStop = true;
             this._flatShaderRadio.Text = "Flat";
             this._flatShaderRadio.UseVisualStyleBackColor = true;
-            this._flatShaderRadio.CheckedChanged += new System.EventHandler(this._flatShaderRadio_CheckedChanged);
+            this._flatShaderRadio.CheckedChanged += new System.EventHandler(this.FlatShaderRadio_CheckedChanged);
             // 
             // _cameraGroupBox
             // 
@@ -130,7 +130,7 @@
             this._onObjectCameraRadio.TabIndex = 2;
             this._onObjectCameraRadio.Text = "On object";
             this._onObjectCameraRadio.UseVisualStyleBackColor = true;
-            this._onObjectCameraRadio.CheckedChanged += new System.EventHandler(this._onObjectCameraRadio_CheckedChanged);
+            this._onObjectCameraRadio.CheckedChanged += new System.EventHandler(this.OnObjectCameraRadio_CheckedChanged);
             // 
             // _followingCameraRadio
             // 
@@ -141,7 +141,7 @@
             this._followingCameraRadio.TabIndex = 1;
             this._followingCameraRadio.Text = "Following";
             this._followingCameraRadio.UseVisualStyleBackColor = true;
-            this._followingCameraRadio.CheckedChanged += new System.EventHandler(this._followingCameraRadio_CheckedChanged);
+            this._followingCameraRadio.CheckedChanged += new System.EventHandler(this.FollowingCameraRadio_CheckedChanged);
             // 
             // _fixedCameraRadio
             // 
@@ -154,7 +154,7 @@
             this._fixedCameraRadio.TabStop = true;
             this._fixedCameraRadio.Text = "Fixed";
             this._fixedCameraRadio.UseVisualStyleBackColor = true;
-            this._fixedCameraRadio.CheckedChanged += new System.EventHandler(this._fixedCameraRadio_CheckedChanged);
+            this._fixedCameraRadio.CheckedChanged += new System.EventHandler(this.FixedCameraRadio_CheckedChanged);
             // 
             // MainForm
             // 

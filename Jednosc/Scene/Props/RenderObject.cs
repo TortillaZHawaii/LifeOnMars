@@ -36,12 +36,7 @@ public class RenderObject
     /// <summary>
     /// Position of the object in the space.
     /// </summary>
-    public Vector3 Position { get; set; } = Vector3.Zero;
-
-    /// <summary>
-    /// Unit vector showing direction in which object is orientated.
-    /// </summary>
-    public Vector3 Forward { get; set; } = Vector3.Zero;
+    public Vector3 Position { get => ModelMatrix.Translation; }
 
     /// <summary>
     /// Unit vector showing where up is. It always evaluates to <see cref="Vector3.UnitY"/>.
@@ -100,14 +95,14 @@ public class RenderObject
                     vertices.Add(GetVertexFromParts(parts));
                     break;
                 case "f": // Indices
-                    var faces = GetFacesIndicesFromParts(parts);
-                    triangleIndexes.Add(faces.vertex);
-                    if (faces.texture != null)
-                        textureIndexes.Add(faces.texture.Value);
-                    if (faces.normal != null)
-                        normalIndexes.Add(faces.normal.Value);
+                    var (vertex, texture, normal) = GetFacesIndicesFromParts(parts);
+                    triangleIndexes.Add(vertex);
+                    if (texture != null)
+                        textureIndexes.Add(texture.Value);
+                    if (normal != null)
+                        normalIndexes.Add(normal.Value);
                     else
-                        normalIndexes.Add(faces.vertex);
+                        normalIndexes.Add(vertex);
                     break;
                 case "vn": // vertex normal
                     vertexNormals.Add(GetVertexNormalFromParts(parts));

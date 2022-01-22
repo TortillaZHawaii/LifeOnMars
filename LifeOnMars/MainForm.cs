@@ -20,22 +20,22 @@ namespace LifeOnMars
             OnObject,
         }
 
-        private IRenderer _renderer;
-        private RenderScene _scene;
-        private System.Windows.Forms.Timer _renderTimer;
-        private System.Windows.Forms.Timer _animationTimer;
-        private ShaderFactory _shaderFactory;
+        private readonly IRenderer _renderer;
+        private readonly RenderScene _scene;
+        private readonly System.Windows.Forms.Timer _renderTimer;
+        private readonly System.Windows.Forms.Timer _animationTimer;
+        private readonly ShaderFactory _shaderFactory;
 
-        private RenderObject _robot;
-        private RenderObject _mars;
-        private RenderObject _sun;
+        private readonly RenderObject _robot;
+        private readonly RenderObject _mars;
+        private readonly RenderObject _sun;
 
-        private SpotLight _robotLaser;
-        private SpotLight _robotLightClose;
+        private readonly SpotLight _robotLaser;
+        private readonly SpotLight _robotLightClose;
 
-        private PointLight _sunLight;
+        private readonly PointLight _sunLight;
 
-        private Camera _camera;
+        private readonly Camera _camera;
         private CameraMode _cameraMode = CameraMode.Fixed;
 
         public MainForm()
@@ -225,7 +225,7 @@ namespace LifeOnMars
             _renderTimeLabel.Text = $"RenderTime: {renderTimeInMs} ms. FPS: {fps:F1}";
         }
 
-        private void _mainPictureBox_Click(object sender, EventArgs e)
+        private void MainPictureBox_Click(object sender, EventArgs e)
         {
             PlayPauseAnimation();
         }
@@ -250,17 +250,17 @@ namespace LifeOnMars
                 PlayPauseAnimation();
         }
 
-        private void _flatShaderRadio_CheckedChanged(object sender, EventArgs e)
+        private void FlatShaderRadio_CheckedChanged(object sender, EventArgs e)
         {
             ChangeShader();
         }
 
-        private void _gouroudShaderRadio_CheckedChanged(object sender, EventArgs e)
+        private void GouroudShaderRadio_CheckedChanged(object sender, EventArgs e)
         {
             ChangeShader();
         }
 
-        private void _phongShaderRadio_CheckedChanged(object sender, EventArgs e)
+        private void PhongShaderRadio_CheckedChanged(object sender, EventArgs e)
         {
             ChangeShader();
         }
@@ -279,17 +279,17 @@ namespace LifeOnMars
             _shaderFactory.SelectedShader = shader;
         }
 
-        private void _fixedCameraRadio_CheckedChanged(object sender, EventArgs e)
+        private void FixedCameraRadio_CheckedChanged(object sender, EventArgs e)
         {
             ChangeCameraMode();
         }
 
-        private void _followingCameraRadio_CheckedChanged(object sender, EventArgs e)
+        private void FollowingCameraRadio_CheckedChanged(object sender, EventArgs e)
         {
             ChangeCameraMode();
         }
 
-        private void _onObjectCameraRadio_CheckedChanged(object sender, EventArgs e)
+        private void OnObjectCameraRadio_CheckedChanged(object sender, EventArgs e)
         {
             ChangeCameraMode();
         }

@@ -11,9 +11,9 @@ namespace Jednosc.Rendering;
 
 public class RendererMultiThread : IRenderer
 {
-    private DirectBitmap _bitmap;
-    private RenderScene _scene;
-    private IShaderFactory _shaderFactory;
+    private readonly DirectBitmap _bitmap;
+    private readonly RenderScene _scene;
+    private readonly IShaderFactory _shaderFactory;
 
     public RendererMultiThread(DirectBitmap bitmap, RenderScene scene, IShaderFactory shaderFactory)
     {
@@ -38,8 +38,8 @@ public class RendererMultiThread : IRenderer
     {
         float fov = 80 * MathF.PI / 180;
         float aspectRatio = _bitmap.Width / _bitmap.Height;
-        float nearPlaneDistance = 1f;
-        float farPlaneDistance = 30f;
+        float nearPlaneDistance = 0.5f;
+        float farPlaneDistance = 20f;
 
         var perspective = Matrix4x4.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
         var view = _scene.Camera.ViewMatrix;
@@ -104,10 +104,11 @@ public class RendererMultiThread : IRenderer
                     continue;
 
                 float z = GetZ(bary, triangle);
+                float zLog = MathF.Log(z);
 
-                if(zBuffer[x, y] > z)
+                if(zBuffer[x, y] > zLog)
                 {
-                    zBuffer[x, y] = z;
+                    zBuffer[x, y] = zLog;
 
                     var color = shader.Fragment(bary);
                     var mistedColor = GetColorWithMist(color, z);
@@ -130,7 +131,7 @@ public class RendererMultiThread : IRenderer
 
     private static Color GetColorWithMist(Color color, float z)
     {
-        const float cuttingLimit = 0.95f;
+        const float cuttingLimit = 0.99f;
         const float slope = 1f / (1f - cuttingLimit);
 
         if(z > cuttingLimit)
