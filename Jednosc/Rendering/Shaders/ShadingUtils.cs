@@ -94,7 +94,9 @@ namespace Jednosc.Rendering.Shaders
                 float rv = MathF.Max(0, Vector3.Dot(reflection, toObserver));
 
                 Vector3 diffuse = material.Kd * lin * lightColor;
-                Vector3 specular = material.Ks * MathF.Pow(rv, material.Alpha) * lightColor;
+                Vector3 specular = lin != 0 ?
+                    material.Ks * MathF.Pow(rv, material.Alpha) * lightColor 
+                    : Vector3.Zero;
 
                 float attenuation = light.GetAttenuation(position);
 

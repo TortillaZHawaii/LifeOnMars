@@ -57,40 +57,5 @@ namespace Jednosc.Rendering.Shaders
 
             return _positionInDisplayCube;
         }
-        
-        //private Color GetBitmapColor(Vector3 bary, DirectBitmap bitmap)
-        //{
-        //    int textureX = (int)(Vector3.Dot(_textureXs, bary) * (bitmap.Width - 1));
-        //    int textureY = (int)((1 - Vector3.Dot(_textureYs, bary)) * (bitmap.Height - 1));
-
-        //    return bitmap.GetPixel(textureX, textureY);
-        //}
-
-        //private Vector3 GetNormalFromMap(Vector3 bary)
-        //{
-        //    var color = GetBitmapColor(bary, _prop.NormalMap!);
-        //    var vector = QMath.GetVectorFromColor(color);
-
-        //    return Vector3.Normalize(vector * 2 - Vector3.One);
-        //}
-
-        //private Vector3 GetNormalIJ(Vector3 bary)
-        //{
-        //    Vector3 a0 = _positionInDisplayCube.b - _positionInDisplayCube.a;
-        //    Vector3 a1 = _positionInDisplayCube.c - _positionInDisplayCube.a;
-        //    Vector3 a2 = QMath.InterpolateFromBary(_normal, bary).GetNormalized();
-
-        //    var ai = new Triangle3(a0, a1, a2);
-
-        //    Vector3 vectorI = new Vector3(_textureXs.Y - _textureXs.X, _textureXs.Z - _textureXs.X, 0);
-        //    Vector3 vectorJ = new Vector3(_textureYs.Y - _textureYs.X, _textureYs.Z - _textureYs.X, 0);
-
-        //    Vector3 i = QMath.InterpolateFromBary(ai, vectorI);
-        //    Vector3 j = QMath.InterpolateFromBary(ai, vectorJ);
-
-        //    // TODO: https://github.com/ssloy/tinyrenderer/blob/907bb561c38e7bd86db8d99678c0108f2e53d54d/main.cpp
-
-        //    throw new NotImplementedException();
-        //}
     }
 }
