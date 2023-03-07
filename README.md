@@ -1,64 +1,65 @@
-# Grafika 3D - Dawid Wysocki
+# LifeOnMars - 3D Graphics
 
-Projekt przedstawia uproszczony układ planetarny ze słońcem, marsem krążącym wokół słońca i satelitą.
+The project presents a simplified planetary system with the sun, Mars orbiting around the sun, and a satellite.
+It uses it's own custom 3D graphics engine called Jednosc.
 
-## Wymagania
-Solucja korzysta z .NET w wersji 6.0.
+## Requirements
+The solution uses .NET version 6.0 and runs on Windows machines.
 
-## Obiekty
+## Objects
 
-Słońce znajduję się na środku sceny.
-Wokół niego krąży mars. Oba te obiekty są gładkie i zostały stworzone za pomocą klasy SphereUV.
+The sun is located in the center of the scene.
+Mars orbits around it. Both objects are smooth and were created using the SphereUV class.
 
-Trzecim obiektem jest satelita. Satelita krąży wokół poruszającego się marsa oraz zmniejsza i zwiększa swoją wysokość względem marsa.
+The third object is a satellite. The satellite orbits around the moving Mars and decreases and increases its height relative to Mars.
 
-Słońce posiada wysoki współczynnik ambient, mars współczynnik diffuse, a satelita współczynnik specular.
+The sun has a high ambient coefficient, Mars has a diffuse coefficient, and the satellite has a specular coefficient.
 
-## Światła
+## Lights
 
-Scena posiada trzy źródła światła:
- - punktowe światło znajduję się w środku sceny w słońcu,
- - reflektor satelity o mocy 50 i kolorze niebieskim,
- - reflektor satelity o mocy 100 i kolorze zielonym.
+The scene has three light sources:
+ - a point light located in the center of the scene in the sun,
+ - a satellite spotlight with a power of 50 and a blue color,
+ - a satellite spotlight with a power of 100 and a green color.
 
-Oba reflektory są animowane (zmiana kierunku światła) tak aby "skanować" planetę mars.
+Both spotlights are animated (changing the direction of light) to "scan" the planet Mars.
 
-## Cieniowanie
+## Shading
 
-Istnieją trzy dostępne tryby cieniowania:
- - flat,
- - Gouraud,
- - Phong.
-Można je wybrać z poziomu menu z prawej strony okienka aplikacji.
+There are three available shading modes:
+ - flat,
+ - Gouraud,
+ - Phong.
+They can be selected from the menu on the right side of the application window.
 
-## Kamery
+## Cameras
 
-Istnieją trzy dostępne kamery:
- - stała skupiona na słońcu,
- - podążająca za marsem,
- - "przyklejona" do satelity.
+There are three available cameras:
+ - a fixed camera focused on the sun,
+ - a camera following Mars,
+ - a camera "attached" to the satellite.
 
-Można je wybrać z poziomu menu z prawej strony okienka aplikacji.
+They can be selected from the menu on the right side of the application window.
 
-## Uwagi techniczne
+## Technical Notes
 
-Solucja składa się z dwóch projektów:
- 1. Jednosc - silnik do renderowania grafiki 3D.
- 2. LifeOnMars - aplikacja wyświetlająca grafikę 3D i animująca scenę.
+The solution consists of two projects:
+ 1. Jednosc - an engine for rendering 3D graphics.
+ 2. LifeOnMars - an application displaying 3D graphics and animating the scene.
 
-Potok renderowania znajdziemy w klasie RendererMultiThread.
-Przekazujemy do niego obiekt klasy Scene, który zawiera wszystkie obiekty, światła i kamerę.
+The rendering pipeline can be found in the RendererMultiThread class.
+We pass to it an object of the Scene class, which contains all objects, lights, and the camera.
 
-RendererMultiThread posiada:
- - backface culling,
- - efekt mgły (szczególnie widoczny w kamerze podążającej za marsem),
- - zbuffer,
- - rzutowanie z kostki na współrzędne ekranu,
- - wycinanie trójkątów spoza kostki renderowania, (za poleceniem Pana Kotowskiego z wykładu usuwamy cały trójkąt który leży poza kostką),
- - rysowanie trójkątów na wielu wątkach z wykorzystaniem współrzędnych barycentrycznych.
+RendererMultiThread has:
+ - backface culling,
+ - fog effect (especially visible in the camera following Mars),
+ - z-buffer,
+ - projection from the cube to screen coordinates,
+ - clipping triangles outside the rendering cube (on the recommendation of Mr. Kotowski from the lecture, we remove the entire triangle that lies outside the cube),
+ - drawing triangles on multiple threads using barycentric coordinates.
 
-RendererMultiThread korzysta z IShader, który oblicza położenie trójkąta w kostce renderowania i ustawia odpowiedni kolor pikseli. Aby umożliwić zmianę shadera w trakcie renderowania RendererMutltiThread przyjmuję fabrykę IShaderFactory.
+RendererMultiThread uses IShader, which calculates the position of the triangle in the rendering cube and sets the appropriate color of pixels. To allow for changing the shader during rendering, RendererMultiThread accepts an IShaderFactory factory.
 
-Potok ten jest wzorowany na sposobie działania OpenGL.
+This pipeline is inspired by the way OpenGL works.
 
-Z uwagi na tworzenie dużych obiektów na początku programu, pokazanie się okienka może zająć trochę czasu.
+Due to the creation of large objects at the beginning of the program, the appearance of the window may take some time.
