@@ -18,27 +18,28 @@ The sun has a high ambient coefficient, Mars has a diffuse coefficient, and the 
 ## Lights
 
 The scene has three light sources:
- - a point light located in the center of the scene in the sun,
- - a satellite spotlight with a power of 50 and a blue color,
- - a satellite spotlight with a power of 100 and a green color.
+ - a point light located in the center of the scene in the sun,
+ - a satellite spotlight with a power of 50 and a blue color,
+ - a satellite spotlight with a power of 100 and a green color.
 
 Both spotlights are animated (changing the direction of light) to "scan" the planet Mars.
 
 ## Shading
 
 There are three available shading modes:
- - flat,
- - Gouraud,
- - Phong.
+ - flat,
+ - Gouraud,
+ - Phong.
+ 
 They can be selected from the menu on the right side of the application window.
 
 ## Cameras
 
 There are three available cameras:
- - a fixed camera focused on the sun,
- - a camera following Mars,
- - a camera "attached" to the satellite.
-
+ - a fixed camera focused on the sun,
+ - a camera following Mars,
+ - a camera "attached" to the satellite.
+ 
 They can be selected from the menu on the right side of the application window.
 
 ## Technical Notes
@@ -51,13 +52,13 @@ The rendering pipeline can be found in the RendererMultiThread class.
 We pass to it an object of the Scene class, which contains all objects, lights, and the camera.
 
 RendererMultiThread has:
- - backface culling,
- - fog effect (especially visible in the camera following Mars),
- - z-buffer,
- - projection from the cube to screen coordinates,
- - clipping triangles outside the rendering cube (on the recommendation of Mr. Kotowski from the lecture, we remove the entire triangle that lies outside the cube),
- - drawing triangles on multiple threads using barycentric coordinates.
-
+ - backface culling,
+ - fog effect (especially visible in the camera following Mars),
+ - z-buffer,
+ - projection from the cube to screen coordinates,
+ - clipping triangles outside the rendering cube (on the recommendation of Mr. Kotowski from the lecture, we remove the entire triangle that lies outside the cube),
+ - drawing triangles on multiple threads using barycentric coordinates.
+ 
 RendererMultiThread uses IShader, which calculates the position of the triangle in the rendering cube and sets the appropriate color of pixels. To allow for changing the shader during rendering, RendererMultiThread accepts an IShaderFactory factory.
 
 This pipeline is inspired by the way OpenGL works.
